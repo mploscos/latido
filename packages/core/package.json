@@ -1,0 +1,11 @@
+{
+  "name": "@latido/core",
+  "version": "0.1.0",
+  "description": "Core scheduler and signal pipeline for Latido.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  }
+}

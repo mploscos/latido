@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Latido Basic Demo</title>
+  </head>
+  <body>
+    <main class="demo">
+      <section class="panel">
+        <p class="eyebrow">Latido</p>
+        <h1>A rhythm-driven UI engine for the web</h1>
+        <p class="subtitle">
+          Bind audio, telemetry, or any temporal signal to CSS and DOM.
+        </p>
+        <button class="beat-button" type="button">Play</button>
+        <audio
+          src="%BASE_URL%audio/demo.mp3"
+          crossorigin="anonymous"
+          loop
+        ></audio>
+      </section>
+
+      <section class="meters" aria-label="Frequency bands">
+        <div class="meter">
+          <div class="bar bar-bass"></div>
+          <span>Bass</span>
+        </div>
+        <div class="meter">
+          <div class="bar bar-mid"></div>
+          <span>Mid</span>
+        </div>
+        <div class="meter">
+          <div class="bar bar-treble"></div>
+          <span>Treble</span>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

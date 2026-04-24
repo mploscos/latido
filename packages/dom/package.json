@@ -1,0 +1,14 @@
+{
+  "name": "@latido/dom",
+  "version": "0.1.0",
+  "description": "DOM bindings for Latido signals.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "dependencies": {
+    "@latido/core": "0.1.0"
+  }
+}
