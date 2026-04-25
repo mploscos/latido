@@ -8,6 +8,21 @@
   "exports": {
     ".": "./src/index.js"
   },
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "keywords": [
+    "latido",
+    "signals",
+    "ui",
+    "animation",
+    "audio",
+    "css"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "@latido/core": "0.1.0"
   }
