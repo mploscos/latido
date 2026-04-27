@@ -24,10 +24,33 @@ export function audio(options = {}) {
         bass: 0,
         mid: 0,
         treble: 0,
-        beat: 0
+        beat: 0,
+        flux: 0,
+        bassFlux: 0,
+        midFlux: 0,
+        trebleFlux: 0,
+        impact: 0
       },
-      averageEnergy: 0,
-      lastBeatAt: -Infinity
+      raw: {
+        energy: 0,
+        bass: 0,
+        mid: 0,
+        treble: 0
+      },
+      energyAverage: 0,
+      previousBass: 0,
+      previousMid: 0,
+      previousTreble: 0,
+      bassFlux: 0,
+      midFlux: 0,
+      trebleFlux: 0,
+      combinedFlux: 0,
+      bassFluxAverage: 0,
+      midFluxAverage: 0,
+      trebleFluxAverage: 0,
+      combinedFluxAverage: 0,
+      lastBeatAt: -Infinity,
+      lastAnalysisTime: null
     }
 
     if (!state.element && options.file) {
@@ -36,15 +59,55 @@ export function audio(options = {}) {
       state.element.loop = true
     }
 
-    latido.source("audio.energy", () => {
-      updateAnalysis(state)
+    latido.source("audio.energy", context => {
+      updateAnalysis(state, context)
       return state.values.energy
     })
 
-    latido.source("audio.bass", () => state.values.bass)
-    latido.source("audio.mid", () => state.values.mid)
-    latido.source("audio.treble", () => state.values.treble)
-    latido.source("audio.beat", () => state.values.beat)
+    latido.source("audio.bass", context => {
+      updateAnalysis(state, context)
+      return state.values.bass
+    })
+
+    latido.source("audio.mid", context => {
+      updateAnalysis(state, context)
+      return state.values.mid
+    })
+
+    latido.source("audio.treble", context => {
+      updateAnalysis(state, context)
+      return state.values.treble
+    })
+
+    latido.source("audio.beat", context => {
+      updateAnalysis(state, context)
+      return state.values.beat
+    })
+
+    latido.source("audio.flux", context => {
+      updateAnalysis(state, context)
+      return state.values.flux
+    })
+
+    latido.source("audio.bassFlux", context => {
+      updateAnalysis(state, context)
+      return state.values.bassFlux
+    })
+
+    latido.source("audio.midFlux", context => {
+      updateAnalysis(state, context)
+      return state.values.midFlux
+    })
+
+    latido.source("audio.trebleFlux", context => {
+      updateAnalysis(state, context)
+      return state.values.trebleFlux
+    })
+
+    latido.source("audio.impact", context => {
+      updateAnalysis(state, context)
+      return state.values.impact
+    })
 
     latido.control("play", async () => {
       await ensureAudio(state, options)
@@ -56,6 +119,8 @@ export function audio(options = {}) {
       if (state.element) state.element.pause()
       if (state.context) state.context.suspend()
     })
+
+    latido.control("audioDebug", () => state)
   }
 }
 
@@ -65,8 +130,8 @@ async function ensureAudio(state, options) {
   const AudioContext = globalThis.AudioContext ?? globalThis.webkitAudioContext
   state.context = new AudioContext()
   state.analyser = state.context.createAnalyser()
-  state.analyser.fftSize = 1024
-  state.analyser.smoothingTimeConstant = 0.72
+  state.analyser.fftSize = 2048
+  state.analyser.smoothingTimeConstant = 0.25
   state.frequencyData = new Uint8Array(state.analyser.frequencyBinCount)
   state.timeData = new Float32Array(state.analyser.fftSize)
 
@@ -92,26 +157,65 @@ async function ensureAudio(state, options) {
   state.analyser.connect(state.context.destination)
 }
 
-function updateAnalysis(state) {
+function updateAnalysis(state, context) {
   if (!state.analyser) return
+  if (state.lastAnalysisTime === context.time) return
+  state.lastAnalysisTime = context.time
 
   state.analyser.getByteFrequencyData(state.frequencyData)
   state.analyser.getFloatTimeDomainData(state.timeData)
 
-  state.values.energy = rms(state.timeData)
-  state.values.bass = averageBand(state.frequencyData, 20, 250, state.context.sampleRate)
-  state.values.mid = averageBand(state.frequencyData, 250, 2000, state.context.sampleRate)
-  state.values.treble = averageBand(state.frequencyData, 2000, 8000, state.context.sampleRate)
+  state.raw.energy = rms(state.timeData)
+  state.raw.bass = averageBand(state.frequencyData, 40, 160, state.context.sampleRate)
+  state.raw.mid = averageBand(state.frequencyData, 160, 2000, state.context.sampleRate)
+  state.raw.treble = averageBand(state.frequencyData, 2000, 8000, state.context.sampleRate)
+
+  state.values.energy = smoothValue(state.values.energy, state.raw.energy, 0.25)
+  state.values.bass = smoothValue(state.values.bass, state.raw.bass, 0.25)
+  state.values.mid = smoothValue(state.values.mid, state.raw.mid, 0.2)
+  state.values.treble = smoothValue(state.values.treble, state.raw.treble, 0.18)
 
   const now = state.context.currentTime * 1000
-  state.averageEnergy = state.averageEnergy * 0.96 + state.values.energy * 0.04
+  state.bassFlux = Math.max(0, state.raw.bass - state.previousBass)
+  state.midFlux = Math.max(0, state.raw.mid - state.previousMid)
+  state.trebleFlux = Math.max(0, state.raw.treble - state.previousTreble)
+  state.combinedFlux = state.bassFlux + state.midFlux * 0.65 + state.trebleFlux * 0.45
 
-  const threshold = Math.max(0.16, state.averageEnergy * 1.45)
-  const cooldown = 180
-  const isBeat = state.values.energy > threshold && now - state.lastBeatAt > cooldown
+  state.energyAverage = state.energyAverage * 0.96 + state.raw.energy * 0.04
+  state.bassFluxAverage = state.bassFluxAverage * 0.94 + state.bassFlux * 0.06
+  state.midFluxAverage = state.midFluxAverage * 0.94 + state.midFlux * 0.06
+  state.trebleFluxAverage = state.trebleFluxAverage * 0.94 + state.trebleFlux * 0.06
+  state.combinedFluxAverage = state.combinedFluxAverage * 0.94 + state.combinedFlux * 0.06
+
+  state.values.flux = normalizeFlux(state.combinedFlux, state.combinedFluxAverage)
+  state.values.bassFlux = normalizeFlux(state.bassFlux, state.bassFluxAverage)
+  state.values.midFlux = normalizeFlux(state.midFlux, state.midFluxAverage)
+  state.values.trebleFlux = normalizeFlux(state.trebleFlux, state.trebleFluxAverage)
+
+  const fluxThreshold = Math.max(0.025, state.combinedFluxAverage * 1.6)
+  const energyThreshold = state.energyAverage * 1.08
+  const isBeat = state.combinedFlux > fluxThreshold &&
+    state.raw.energy > energyThreshold &&
+    now - state.lastBeatAt > 160
 
   state.values.beat = isBeat ? 1 : 0
   if (isBeat) state.lastBeatAt = now
+  state.values.impact = Math.max(
+    state.values.impact * 0.72,
+    Math.min(1, state.values.flux * 0.72 + (isBeat ? 0.55 : 0))
+  )
+  state.previousBass = state.raw.bass
+  state.previousMid = state.raw.mid
+  state.previousTreble = state.raw.treble
+}
+
+function normalizeFlux(value, average) {
+  const baseline = Math.max(0.025, average * 2.4)
+  return Math.min(1, value / baseline)
+}
+
+function smoothValue(previous, next, amount) {
+  return previous + (next - previous) * amount
 }
 
 function rms(data) {

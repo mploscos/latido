@@ -3,40 +3,34 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Latido Basic Demo</title>
+    <title>Latido Examples</title>
   </head>
   <body>
-    <main class="demo">
-      <section class="panel">
-        <p class="eyebrow">Latido</p>
-        <h1>A rhythm-driven UI engine for the web</h1>
-        <p class="subtitle">
-          Bind audio, telemetry, or any temporal signal to CSS and DOM.
-        </p>
-        <button class="beat-button" type="button">Play</button>
-        <audio
-          src="%BASE_URL%audio/demo.mp3"
-          crossorigin="anonymous"
-          loop
-        ></audio>
-      </section>
+    <main class="showcase">
+      <header class="showcase-header">
+        <div>
+          <p class="eyebrow">Latido Examples</p>
+          <h1>One signal engine, multiple demos</h1>
+          <p class="subtitle">
+            Explore DOM bindings, audio analysis, generic targets, PixiJS, Canvas and Three.js from one page.
+          </p>
+        </div>
+        <nav class="tabs" aria-label="Examples">
+          <button class="tab is-active" type="button" data-demo="basic">Basic DOM</button>
+          <button class="tab" type="button" data-demo="multi-target">Multi-target</button>
+        </nav>
+      </header>
 
-      <section class="meters" aria-label="Frequency bands">
-        <div class="meter">
-          <div class="bar bar-bass"></div>
-          <span>Bass</span>
-        </div>
-        <div class="meter">
-          <div class="bar bar-mid"></div>
-          <span>Mid</span>
-        </div>
-        <div class="meter">
-          <div class="bar bar-treble"></div>
-          <span>Treble</span>
-        </div>
+      <section class="demo-frame-wrap" aria-label="Selected example">
+        <iframe
+          class="demo-frame"
+          title="Latido Basic DOM demo"
+          src="./basic.html"
+          data-demo-frame
+        ></iframe>
       </section>
     </main>
 
-    <script type="module" src="/src/main.js"></script>
+    <script type="module" src="/src/showcase.js"></script>
   </body>
 </html>

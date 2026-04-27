@@ -1,0 +1,147 @@
+:root {
+  color-scheme: dark;
+  background: #0f1218;
+  color: #f7f8fb;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  background:
+    radial-gradient(circle at 18% 12%, rgba(255, 61, 129, 0.18), transparent 28rem),
+    radial-gradient(circle at 82% 16%, rgba(43, 217, 208, 0.16), transparent 26rem),
+    #0f1218;
+}
+
+button {
+  font: inherit;
+}
+
+.showcase {
+  display: grid;
+  grid-template-columns: 17rem minmax(0, 1fr);
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.showcase-header {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 28px;
+  min-width: 0;
+  min-height: 0;
+  padding: 24px 18px;
+  border-right: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(13, 16, 24, 0.9);
+}
+
+.eyebrow {
+  margin: 0 0 6px;
+  color: #2bd9d0;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+h1 {
+  margin: 0;
+  font-size: 1.7rem;
+  line-height: 1.05;
+  letter-spacing: 0;
+}
+
+.subtitle {
+  margin: 10px 0 0;
+  color: rgba(247, 248, 251, 0.66);
+  line-height: 1.45;
+}
+
+.tabs {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tab {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  padding: 0 14px;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(247, 248, 251, 0.74);
+  font-weight: 800;
+  text-align: left;
+  cursor: pointer;
+}
+
+.tab.is-active {
+  border-color: rgba(43, 217, 208, 0.74);
+  background: #2bd9d0;
+  color: #0f1218;
+}
+
+.demo-frame-wrap {
+  min-width: 0;
+  min-height: 0;
+  height: 100vh;
+}
+
+.demo-frame {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  border: 0;
+  background: #10131f;
+}
+
+@media (max-width: 760px) {
+  .showcase {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .showcase-header {
+    gap: 16px;
+    padding: 16px;
+    border-right: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  h1 {
+    font-size: 1.35rem;
+  }
+
+  .subtitle {
+    max-width: 38rem;
+  }
+
+  .tabs {
+    flex-direction: row;
+  }
+
+  .tab {
+    flex: 1 1 10rem;
+    text-align: center;
+  }
+
+  .demo-frame-wrap {
+    height: auto;
+    min-height: 0;
+  }
+
+  .demo-frame {
+    min-height: 0;
+  }
+}

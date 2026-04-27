@@ -1,0 +1,39 @@
+{
+  "name": "@latido/targets",
+  "version": "0.2.0",
+  "description": "Renderer-agnostic target bindings for Latido signals.",
+  "license": "MIT",
+  "homepage": "https://mploscos.github.io/latido/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mploscos/latido.git",
+    "directory": "packages/targets"
+  },
+  "bugs": {
+    "url": "https://github.com/mploscos/latido/issues"
+  },
+  "type": "module",
+  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "keywords": [
+    "latido",
+    "signals",
+    "ui",
+    "animation",
+    "targets",
+    "bindings",
+    "renderers"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@latido/core": "0.2.0"
+  }
+}

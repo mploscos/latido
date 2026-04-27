@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Latido Multi Target Demo</title>
+  </head>
+  <body>
+    <main class="app">
+      <header class="toolbar">
+        <div>
+          <p class="eyebrow">Latido Targets</p>
+          <h1>One signal engine, multiple render targets</h1>
+          <p class="safety-note">Visuals react to audio. Safe mode reduces flashing and motion.</p>
+        </div>
+        <div class="toolbar-actions">
+          <label class="safe-toggle">
+            <input class="safe-mode-toggle" type="checkbox" checked />
+            <span>Safe mode</span>
+          </label>
+          <button class="play-button" type="button">Play</button>
+        </div>
+      </header>
+
+      <section class="grid" aria-label="Renderer targets">
+        <article class="panel dom-panel">
+          <h2>DOM</h2>
+          <div class="dom-orb"></div>
+          <div class="meter-row">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </article>
+
+        <article class="panel">
+          <h2>PixiJS</h2>
+          <div class="pixi-view render-view"></div>
+        </article>
+
+        <article class="panel">
+          <h2>Canvas</h2>
+          <canvas class="canvas-view render-view"></canvas>
+        </article>
+
+        <article class="panel">
+          <h2>Three.js Tunnel</h2>
+          <canvas class="three-view render-view"></canvas>
+        </article>
+      </section>
+
+      <audio src="%BASE_URL%audio/demo.mp3" crossorigin="anonymous"></audio>
+    </main>
+    <script type="module" src="/src/multi-target.js"></script>
+  </body>
+</html>
