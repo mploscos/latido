@@ -1,13 +1,13 @@
 {
-  "name": "@latido/dom",
+  "name": "@latido/network",
   "version": "0.3.0",
-  "description": "DOM bindings for Latido signals.",
+  "description": "WebSocket and Server-Sent Events sources for Latido.",
   "license": "MIT",
   "homepage": "https://mploscos.github.io/latido/",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mploscos/latido.git",
-    "directory": "packages/dom"
+    "directory": "packages/network"
   },
   "bugs": {
     "url": "https://github.com/mploscos/latido/issues"
@@ -24,10 +24,10 @@
   "keywords": [
     "latido",
     "signals",
-    "ui",
-    "animation",
-    "audio",
-    "css"
+    "websocket",
+    "sse",
+    "eventsource",
+    "streaming"
   ],
   "publishConfig": {
     "access": "public"

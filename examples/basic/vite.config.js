@@ -7,7 +7,8 @@ export default defineConfig({
       input: {
         main: resolve(__dirname, "index.html"),
         basic: resolve(__dirname, "basic.html"),
-        multiTarget: resolve(__dirname, "multi-target.html")
+        multiTarget: resolve(__dirname, "multi-target.html"),
+        adaptiveHmi: resolve(__dirname, "adaptive-hmi.html")
       }
     }
   }

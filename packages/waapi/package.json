@@ -1,13 +1,13 @@
 {
-  "name": "@latido/dom",
+  "name": "@latido/waapi",
   "version": "0.3.0",
-  "description": "DOM bindings for Latido signals.",
+  "description": "Web Animations API bindings for Latido signals.",
   "license": "MIT",
   "homepage": "https://mploscos.github.io/latido/",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mploscos/latido.git",
-    "directory": "packages/dom"
+    "directory": "packages/waapi"
   },
   "bugs": {
     "url": "https://github.com/mploscos/latido/issues"
@@ -24,10 +24,9 @@
   "keywords": [
     "latido",
     "signals",
-    "ui",
-    "animation",
-    "audio",
-    "css"
+    "waapi",
+    "web-animations",
+    "animation"
   ],
   "publishConfig": {
     "access": "public"

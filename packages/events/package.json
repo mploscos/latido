@@ -1,13 +1,13 @@
 {
-  "name": "@latido/dom",
+  "name": "@latido/events",
   "version": "0.3.0",
-  "description": "DOM bindings for Latido signals.",
+  "description": "Browser event sources for Latido signals.",
   "license": "MIT",
   "homepage": "https://mploscos.github.io/latido/",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mploscos/latido.git",
-    "directory": "packages/dom"
+    "directory": "packages/events"
   },
   "bugs": {
     "url": "https://github.com/mploscos/latido/issues"
@@ -24,10 +24,12 @@
   "keywords": [
     "latido",
     "signals",
-    "ui",
-    "animation",
-    "audio",
-    "css"
+    "events",
+    "pointer",
+    "click",
+    "scroll",
+    "motion",
+    "orientation"
   ],
   "publishConfig": {
     "access": "public"

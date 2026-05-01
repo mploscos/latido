@@ -8,6 +8,10 @@ const demos = {
   "multi-target": {
     title: "Latido Multi-target demo",
     url: "./multi-target.html"
+  },
+  "adaptive-hmi": {
+    title: "Latido Adaptive HMI demo",
+    url: "./adaptive-hmi.html"
   }
 }
 

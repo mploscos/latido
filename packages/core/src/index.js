@@ -19,6 +19,7 @@ class Latido {
     this.plugins = new Set()
     this.controls = new Map()
     this.signalExtensions = new Map()
+    this.adapterSets = new Map()
 
     this.running = false
     this.frame = null
@@ -59,6 +60,106 @@ class Latido {
   source(name, reader) {
     this.sources.set(name, reader)
     return this
+  }
+
+  /**
+   * Registers a domain adapter set as normalized sources.
+   *
+   * @param {string} namespace Source namespace, for example "hmi".
+   * @param {object} options
+   * @param {Record<string, Adapter>} options.adapters
+   * @param {string} [options.initial]
+   * @param {string[]} [options.signals]
+   * @param {boolean} [options.clamp]
+   * @param {string[]} [options.wrap]
+   * @returns {this}
+   */
+  adapt(namespace, options = {}) {
+    const name = String(namespace || "").trim()
+    if (!name) throw new Error("Latido adapters require a namespace.")
+
+    const registry = new Map(Object.entries(options.adapters ?? {}))
+    if (registry.size === 0) throw new Error(`Latido adapter set "${name}" requires adapters.`)
+
+    const signals = options.signals?.length ? [...options.signals] : [
+      "energy",
+      "pulse",
+      "flow",
+      "volatility",
+      "phase",
+      "primary",
+      "secondary",
+      "tertiary"
+    ]
+    const initial = options.initial ?? registry.keys().next().value
+
+    if (!registry.has(initial)) {
+      throw new Error(`Unknown initial adapter "${initial}" for "${name}".`)
+    }
+
+    const state = {
+      namespace: name,
+      adapters: registry,
+      active: initial,
+      signals,
+      values: Object.fromEntries(signals.map(signal => [signal, 0])),
+      clamp: options.clamp ?? true,
+      wrap: new Set(options.wrap ?? ["phase"]),
+      lastUpdateTime: null
+    }
+
+    this.adapterSets.set(name, state)
+
+    for (const signal of signals) {
+      this.source(`${name}.${signal}`, context => {
+        this.updateAdapter(name, context)
+        return state.values[signal] ?? 0
+      })
+    }
+
+    return this
+  }
+
+  /**
+   * Selects the active adapter for a namespace.
+   *
+   * @param {string} namespace
+   * @param {string} adapterName
+   * @returns {this}
+   */
+  useAdapter(namespace, adapterName) {
+    const state = this.getAdapterState(namespace)
+    if (!state.adapters.has(adapterName)) {
+      throw new Error(`Unknown adapter "${adapterName}" for "${namespace}".`)
+    }
+
+    state.active = adapterName
+    state.lastUpdateTime = null
+    return this
+  }
+
+  /**
+   * Returns the active adapter descriptor.
+   *
+   * @param {string} namespace
+   * @returns {{ name: string, adapter: Adapter }}
+   */
+  activeAdapter(namespace) {
+    const state = this.getAdapterState(namespace)
+    return {
+      name: state.active,
+      adapter: state.adapters.get(state.active)
+    }
+  }
+
+  /**
+   * Returns adapter set state for inspection.
+   *
+   * @param {string} namespace
+   * @returns {object}
+   */
+  adapterDebug(namespace) {
+    return this.getAdapterState(namespace)
   }
 
   /**
@@ -189,6 +290,30 @@ class Latido {
       time: this.time,
       delta: this.delta
     }
+  }
+
+  updateAdapter(namespace, context) {
+    const state = this.getAdapterState(namespace)
+    if (state.lastUpdateTime === context.time) return state.values
+    state.lastUpdateTime = context.time
+
+    const adapter = state.adapters.get(state.active)
+    const next = adapter?.read?.(context) ?? {}
+
+    for (const signal of state.signals) {
+      state.values[signal] = normalizeAdapterValue(next[signal], {
+        clamp: state.clamp,
+        wrap: state.wrap.has(signal)
+      })
+    }
+
+    return state.values
+  }
+
+  getAdapterState(namespace) {
+    const state = this.adapterSets.get(namespace)
+    if (!state) throw new Error(`Unknown adapter namespace "${namespace}".`)
+    return state
   }
 }
 
@@ -371,6 +496,16 @@ function clamp01(value) {
   return Math.min(1, Math.max(0, Number(value) || 0))
 }
 
+function normalizeAdapterValue(value, options) {
+  const number = Number(value) || 0
+
+  if (options.wrap) {
+    return number - Math.floor(number)
+  }
+
+  return options.clamp ? clamp01(number) : number
+}
+
 /**
  * @typedef {object} TickContext
  * @property {Latido} latido
@@ -380,4 +515,12 @@ function clamp01(value) {
 
 /**
  * @typedef {TickContext & { signal: Signal }} SignalContext
+ */
+
+/**
+ * @typedef {object} Adapter
+ * @property {string} [label]
+ * @property {string} [mode]
+ * @property {Record<string, string>} [labels]
+ * @property {(context: TickContext) => Record<string, number>} read
  */

@@ -38,3 +38,18 @@ latido.start()
 ```
 
 Audio starts after a user gesture. Call `latido.play()` from a button click to satisfy browser autoplay rules.
+
+## Beat detection
+
+`audio.beat` is a binary onset signal for visual synchronization. It detects short energy changes in the spectrum; it does not estimate musical BPM or bar position.
+
+```js
+audio({
+  element,
+  minBeatInterval: 180,
+  beatSensitivity: 1.35,
+  energySensitivity: 1.04
+})
+```
+
+Use lower sensitivity values for denser reactions and higher values for fewer false positives.

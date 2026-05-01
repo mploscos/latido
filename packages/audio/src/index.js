@@ -7,9 +7,22 @@ const elementSources = new WeakMap()
  * @param {string} [options.file]
  * @param {HTMLMediaElement} [options.element]
  * @param {boolean} [options.microphone]
+ * @param {number} [options.fftSize]
+ * @param {number} [options.smoothingTimeConstant]
+ * @param {number} [options.minBeatInterval]
+ * @param {number} [options.beatSensitivity]
+ * @param {number} [options.energySensitivity]
  * @returns {(latido: import("@latido/core").createLatido) => void}
  */
 export function audio(options = {}) {
+  const beatOptions = {
+    fftSize: options.fftSize ?? 2048,
+    smoothingTimeConstant: options.smoothingTimeConstant ?? 0.2,
+    minBeatInterval: options.minBeatInterval ?? 180,
+    beatSensitivity: options.beatSensitivity ?? 1.35,
+    energySensitivity: options.energySensitivity ?? 1.04
+  }
+
   return latido => {
     const state = {
       context: null,
@@ -45,12 +58,20 @@ export function audio(options = {}) {
       midFlux: 0,
       trebleFlux: 0,
       combinedFlux: 0,
+      onset: 0,
+      previousOnset: 0,
+      analysisFrames: 0,
+      onsetAverage: 0,
+      onsetDeviation: 0,
+      beatThreshold: 0,
+      previousSpectrum: null,
       bassFluxAverage: 0,
       midFluxAverage: 0,
       trebleFluxAverage: 0,
       combinedFluxAverage: 0,
       lastBeatAt: -Infinity,
-      lastAnalysisTime: null
+      lastAnalysisTime: null,
+      options: beatOptions
     }
 
     if (!state.element && options.file) {
@@ -130,10 +151,11 @@ async function ensureAudio(state, options) {
   const AudioContext = globalThis.AudioContext ?? globalThis.webkitAudioContext
   state.context = new AudioContext()
   state.analyser = state.context.createAnalyser()
-  state.analyser.fftSize = 2048
-  state.analyser.smoothingTimeConstant = 0.25
+  state.analyser.fftSize = state.options.fftSize
+  state.analyser.smoothingTimeConstant = state.options.smoothingTimeConstant
   state.frequencyData = new Uint8Array(state.analyser.frequencyBinCount)
   state.timeData = new Float32Array(state.analyser.fftSize)
+  state.previousSpectrum = new Float32Array(state.analyser.frequencyBinCount)
 
   if (options.microphone) {
     state.stream = await navigator.mediaDevices.getUserMedia({ audio: true })
@@ -180,23 +202,30 @@ function updateAnalysis(state, context) {
   state.midFlux = Math.max(0, state.raw.mid - state.previousMid)
   state.trebleFlux = Math.max(0, state.raw.treble - state.previousTreble)
   state.combinedFlux = state.bassFlux + state.midFlux * 0.65 + state.trebleFlux * 0.45
+  state.onset = spectralFlux(state.frequencyData, state.previousSpectrum, state.context.sampleRate)
 
   state.energyAverage = state.energyAverage * 0.96 + state.raw.energy * 0.04
+  state.onsetAverage = state.onsetAverage * 0.94 + state.onset * 0.06
+  state.onsetDeviation = state.onsetDeviation * 0.94 + Math.abs(state.onset - state.onsetAverage) * 0.06
   state.bassFluxAverage = state.bassFluxAverage * 0.94 + state.bassFlux * 0.06
   state.midFluxAverage = state.midFluxAverage * 0.94 + state.midFlux * 0.06
   state.trebleFluxAverage = state.trebleFluxAverage * 0.94 + state.trebleFlux * 0.06
   state.combinedFluxAverage = state.combinedFluxAverage * 0.94 + state.combinedFlux * 0.06
 
-  state.values.flux = normalizeFlux(state.combinedFlux, state.combinedFluxAverage)
+  state.values.flux = normalizeFlux(state.onset, state.onsetAverage)
   state.values.bassFlux = normalizeFlux(state.bassFlux, state.bassFluxAverage)
   state.values.midFlux = normalizeFlux(state.midFlux, state.midFluxAverage)
   state.values.trebleFlux = normalizeFlux(state.trebleFlux, state.trebleFluxAverage)
 
-  const fluxThreshold = Math.max(0.025, state.combinedFluxAverage * 1.6)
-  const energyThreshold = state.energyAverage * 1.08
-  const isBeat = state.combinedFlux > fluxThreshold &&
+  state.beatThreshold = Math.max(0.015, state.onsetAverage + state.onsetDeviation * state.options.beatSensitivity)
+  const energyThreshold = Math.max(0.012, state.energyAverage * state.options.energySensitivity)
+  state.analysisFrames += 1
+  const hasWarmup = state.analysisFrames > 3
+  const isBeat = hasWarmup &&
+    state.onset > state.beatThreshold &&
     state.raw.energy > energyThreshold &&
-    now - state.lastBeatAt > 160
+    state.onset >= state.previousOnset &&
+    now - state.lastBeatAt >= state.options.minBeatInterval
 
   state.values.beat = isBeat ? 1 : 0
   if (isBeat) state.lastBeatAt = now
@@ -204,9 +233,11 @@ function updateAnalysis(state, context) {
     state.values.impact * 0.72,
     Math.min(1, state.values.flux * 0.72 + (isBeat ? 0.55 : 0))
   )
+  state.previousOnset = state.onset
   state.previousBass = state.raw.bass
   state.previousMid = state.raw.mid
   state.previousTreble = state.raw.treble
+  state.previousSpectrum.set(state.frequencyData)
 }
 
 function normalizeFlux(value, average) {
@@ -242,4 +273,30 @@ function averageBand(data, lowHz, highHz, sampleRate) {
   }
 
   return sum / ((high - low + 1) * 255)
+}
+
+function spectralFlux(data, previous, sampleRate) {
+  if (!previous) return 0
+
+  const bass = bandFlux(data, previous, 40, 160, sampleRate)
+  const lowMid = bandFlux(data, previous, 160, 1200, sampleRate)
+  const highMid = bandFlux(data, previous, 1200, 5000, sampleRate)
+
+  return bass * 1.4 + lowMid * 0.8 + highMid * 0.45
+}
+
+function bandFlux(data, previous, lowHz, highHz, sampleRate) {
+  const nyquist = sampleRate / 2
+  const low = Math.max(0, Math.floor((lowHz / nyquist) * data.length))
+  const high = Math.min(data.length - 1, Math.ceil((highHz / nyquist) * data.length))
+
+  if (high <= low) return 0
+
+  let sum = 0
+
+  for (let index = low; index <= high; index += 1) {
+    sum += Math.max(0, data[index] - previous[index]) / 255
+  }
+
+  return sum / (high - low + 1)
 }

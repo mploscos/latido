@@ -50,6 +50,23 @@ It connects **signals** to **visual behavior**.
 
 Bind any signal to DOM, Canvas, PixiJS, Three.js, or your own renderer.
 
+The adaptive HMI example maps audio, weather, biology, aeronautics, markets, and browser events into the same normalized signals so the interface can change data domains without changing its bindings.
+
+`@latido/core` includes adapter sets for this pattern:
+
+```js
+const latido = createLatido().adapt("hmi", {
+  initial: "weather",
+  adapters: {
+    weather: weatherAdapter,
+    biology: biologyAdapter
+  }
+})
+
+latido.signal("hmi.energy").bindCSSVar(document.body, "--energy")
+latido.useAdapter("hmi", "biology")
+```
+
 ---
 
 ## Basic Example
@@ -124,12 +141,23 @@ npm run dev
 
 ---
 
+## Packages
+
+- Core signal pipeline and adapters: `@latido/core`  
+- Audio analysis and beat/onset sources: `@latido/audio`  
+- DOM bindings: `@latido/dom`  
+- Object target bindings: `@latido/targets`  
+- Web Animations API bindings: `@latido/waapi`  
+- WebSocket and SSE sources: `@latido/network`  
+- Browser event sources: `@latido/events`  
+
+`@latido/waapi` and `@latido/network` are included as packages, but the demo gallery does not include dedicated examples for them yet.
+
 ## Roadmap
 
-- WebGPU bindings  
-- Web Animations API bindings  
-- WebSocket and SSE sources  
-- Telemetry and sensor sources  
+### 0.4.0
+
+- Production examples for network-driven signals  
 
 ---
 

@@ -1,0 +1,306 @@
+:root {
+  color-scheme: dark;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #0c0f14;
+  color: #eef2f4;
+  --energy: 0;
+  --pulse: 0;
+  --flow: 0;
+  --volatility: 0;
+  --phase: 0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background:
+    linear-gradient(130deg, rgba(6, 214, 160, 0.14), transparent 34%),
+    radial-gradient(circle at 72% 18%, rgba(239, 71, 111, 0.18), transparent 26%),
+    #0c0f14;
+}
+
+button {
+  font: inherit;
+}
+
+.hmi-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 18px;
+  padding: clamp(16px, 2.5vw, 28px);
+}
+
+.hmi-topbar {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.eyebrow {
+  margin: 0 0 6px;
+  color: #8bd8d2;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+h1 {
+  margin: 0;
+  max-width: 760px;
+  font-size: clamp(2rem, 5vw, 4.7rem);
+  line-height: 0.92;
+  letter-spacing: 0;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.source-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid rgba(238, 242, 244, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.source-tab {
+  min-height: 38px;
+  border: 0;
+  color: #eef2f4;
+  background: transparent;
+  cursor: pointer;
+}
+
+.source-tab {
+  padding: 0 12px;
+}
+
+.source-tab.is-active {
+  background: #eef2f4;
+  color: #0c0f14;
+}
+
+.hmi-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(260px, 0.75fr);
+  grid-template-rows: minmax(360px, 1fr) auto;
+  gap: 14px;
+  min-height: 0;
+}
+
+.instrument {
+  border: 1px solid rgba(238, 242, 244, 0.14);
+  background: rgba(13, 18, 24, 0.78);
+}
+
+.hero-instrument {
+  grid-row: span 2;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  min-height: 520px;
+}
+
+.scope {
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.wave-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.core {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(34vw, 310px);
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%) scale(calc(0.86 + var(--energy) * 0.18 + var(--pulse) * 0.14));
+}
+
+.core-ring,
+.core-pulse {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+}
+
+.core-ring {
+  border: 1px solid rgba(238, 242, 244, 0.42);
+  box-shadow:
+    inset 0 0 44px rgba(6, 214, 160, calc(0.1 + var(--flow) * 0.28)),
+    0 0 72px rgba(239, 71, 111, calc(0.12 + var(--pulse) * 0.36));
+}
+
+.core-pulse {
+  inset: 18%;
+  background:
+    conic-gradient(from calc(var(--phase) * 360deg), #ef476f, #ffd166, #06d6a0, #118ab2, #ef476f);
+  opacity: calc(0.24 + var(--energy) * 0.42);
+  filter: blur(calc(8px + var(--volatility) * 14px));
+}
+
+.readout-row,
+.status-panel,
+.channel-list,
+.meters {
+  padding: 18px;
+}
+
+.readout-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  border-top: 1px solid rgba(238, 242, 244, 0.14);
+}
+
+.readout-label,
+.meter span,
+.channel-label {
+  display: block;
+  color: rgba(238, 242, 244, 0.58);
+  font-size: 0.78rem;
+}
+
+.readout-row strong,
+.status-copy strong,
+.channel strong {
+  display: block;
+  margin-top: 4px;
+  font-size: clamp(1rem, 2vw, 1.34rem);
+}
+
+.meters {
+  display: grid;
+  gap: 16px;
+}
+
+.meter {
+  display: grid;
+  gap: 8px;
+}
+
+.meter-fill {
+  display: block;
+  height: 18px;
+  background: rgba(238, 242, 244, 0.08);
+  overflow: hidden;
+}
+
+.meter-fill::before {
+  content: "";
+  display: block;
+  width: calc(var(--level, 0) * 100%);
+  height: 100%;
+  background: var(--meter-color);
+  box-shadow: 0 0 24px var(--meter-color);
+}
+
+.meter-energy {
+  --level: var(--energy);
+}
+
+.meter-flow {
+  --level: var(--flow);
+}
+
+.meter-volatility {
+  --level: var(--volatility);
+}
+
+.status-panel {
+  display: grid;
+  grid-template-columns: 116px 1fr;
+  align-items: center;
+  gap: 16px;
+}
+
+.status-dial {
+  position: relative;
+  width: 116px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 1px solid rgba(238, 242, 244, 0.28);
+  background: radial-gradient(circle, rgba(238, 242, 244, 0.12), rgba(238, 242, 244, 0.02));
+}
+
+.dial-hand {
+  position: absolute;
+  left: 50%;
+  bottom: 50%;
+  width: 3px;
+  height: 42%;
+  background: #ffd166;
+  transform-origin: 50% 100%;
+  transform: translateX(-50%) rotate(calc(-120deg + var(--flow) * 240deg));
+}
+
+.channel-list {
+  display: grid;
+  gap: 14px;
+}
+
+.channel {
+  display: grid;
+  grid-template-columns: 14px 1fr auto;
+  align-items: center;
+  gap: 10px;
+}
+
+.channel-dot {
+  width: 10px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #ef476f;
+  box-shadow: 0 0 16px currentColor;
+}
+
+.channel-secondary {
+  background: #06d6a0;
+}
+
+.channel-tertiary {
+  background: #ffd166;
+}
+
+body.is-pulsing .instrument {
+  border-color: rgba(239, 71, 111, 0.48);
+}
+
+@media (max-width: 900px) {
+  .hmi-topbar,
+  .controls {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .source-tabs {
+    overflow-x: auto;
+  }
+
+  .hmi-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+  }
+
+  .hero-instrument {
+    min-height: 460px;
+  }
+}

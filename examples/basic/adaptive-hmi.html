@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Latido Adaptive HMI</title>
+  </head>
+  <body>
+    <main class="hmi-shell">
+      <header class="hmi-topbar">
+        <div>
+          <p class="eyebrow">Latido Adaptive HMI</p>
+          <h1>One binding graph, many pulses</h1>
+        </div>
+        <div class="controls">
+          <div class="source-tabs" role="tablist" aria-label="Signal source">
+            <button class="source-tab is-active" type="button" data-source="weather">Weather</button>
+            <button class="source-tab" type="button" data-source="audio">Audio</button>
+            <button class="source-tab" type="button" data-source="biology">Biology</button>
+            <button class="source-tab" type="button" data-source="aero">Aero</button>
+            <button class="source-tab" type="button" data-source="markets">Markets</button>
+            <button class="source-tab" type="button" data-source="events">Events</button>
+          </div>
+        </div>
+      </header>
+
+      <section class="hmi-grid" aria-label="Adaptive HMI">
+        <section class="instrument hero-instrument" aria-label="Primary signal">
+          <div class="scope">
+            <canvas class="wave-canvas"></canvas>
+            <div class="core">
+              <span class="core-ring"></span>
+              <span class="core-pulse"></span>
+            </div>
+          </div>
+          <div class="readout-row">
+            <div>
+              <span class="readout-label">Source</span>
+              <strong class="source-name">Weather</strong>
+            </div>
+            <div>
+              <span class="readout-label">Mode</span>
+              <strong class="source-mode">Wind, pressure, storm cells</strong>
+            </div>
+          </div>
+        </section>
+
+        <section class="instrument meters" aria-label="Signal meters">
+          <div class="meter" style="--meter-color: #ef476f">
+            <span class="metric-energy-label">Thermal intensity</span>
+            <i class="meter-fill meter-energy"></i>
+          </div>
+          <div class="meter" style="--meter-color: #06d6a0">
+            <span class="metric-flow-label">Wind flow</span>
+            <i class="meter-fill meter-flow"></i>
+          </div>
+          <div class="meter" style="--meter-color: #ffd166">
+            <span class="metric-volatility-label">Gust volatility</span>
+            <i class="meter-fill meter-volatility"></i>
+          </div>
+        </section>
+
+        <section class="instrument status-panel" aria-label="Signal state">
+          <div class="status-dial">
+            <span class="dial-hand"></span>
+          </div>
+          <div class="status-copy">
+            <span class="readout-label">Flow gauge</span>
+            <strong class="flow-value">0.00</strong>
+          </div>
+        </section>
+
+        <section class="instrument channel-list" aria-label="Domain channels">
+          <div class="channel">
+            <span class="channel-dot channel-primary"></span>
+            <span class="channel-label channel-primary-label">Wind</span>
+            <strong class="channel-primary-value">0.00</strong>
+          </div>
+          <div class="channel">
+            <span class="channel-dot channel-secondary"></span>
+            <span class="channel-label channel-secondary-label">Pressure</span>
+            <strong class="channel-secondary-value">0.00</strong>
+          </div>
+          <div class="channel">
+            <span class="channel-dot channel-tertiary"></span>
+            <span class="channel-label channel-tertiary-label">Storm cells</span>
+            <strong class="channel-tertiary-value">0.00</strong>
+          </div>
+        </section>
+      </section>
+
+      <audio src="%BASE_URL%audio/demo.mp3" crossorigin="anonymous"></audio>
+    </main>
+
+    <script type="module" src="/src/adaptive-hmi.js"></script>
+  </body>
+</html>
