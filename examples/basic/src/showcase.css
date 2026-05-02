@@ -44,8 +44,22 @@ button {
   background: rgba(13, 16, 24, 0.9);
 }
 
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.brand-mark {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  filter: invert(1);
+}
+
 .eyebrow {
-  margin: 0 0 6px;
+  margin: 0;
   color: #2bd9d0;
   font-size: 0.76rem;
   font-weight: 800;

@@ -55,6 +55,16 @@ export function dom() {
   }
 }
 
+export {
+  defineLatidoElements,
+  defineLatidoPulseCore,
+  defineLatidoPulseField,
+  defineLatidoSignalReadout,
+  LatidoPulseCore,
+  LatidoPulseField,
+  LatidoSignalReadout
+} from "./components/index.js"
+
 /**
  * Resolves a selector, element, or element array once.
  *

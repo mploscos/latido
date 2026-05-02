@@ -1,8 +1,13 @@
 # Latido
 
+<img src="./latido.svg" alt="Latido logo" width="128">
+
 > Turn signals into living interfaces.
 
-![Latido demo](./assets/demo.gif)
+<p>
+  <img src="./assets/demo.gif" alt="Latido demo" width="49%">
+  <img src="./assets/system-pulse.gif" alt="Latido System Pulse demo" width="49%">
+</p>
 
 Make one signal drive multiple render targets in sync.
 
@@ -36,7 +41,8 @@ latido.signal("audio.beat")
 latido.start()
 ```
 
-▶️ [Live demo](https://mploscos.github.io/latido/)  
+▶️ [Live demo gallery](https://mploscos.github.io/latido/)  
+▶️ [System Pulse live example](https://mploscos.github.io/latido/system-pulse/)  
 Audio starts after pressing **Play**.
 
 ---
@@ -51,6 +57,10 @@ It connects **signals** to **visual behavior**.
 Bind any signal to DOM, Canvas, PixiJS, Three.js, or your own renderer.
 
 The adaptive HMI example maps audio, weather, biology, aeronautics, markets, and browser events into the same normalized signals so the interface can change data domains without changing its bindings.
+
+The System Pulse example turns real-world data into behavior - not charts. Weather Pulse uses live Open-Meteo data with no API key, while Market Pulse tries experimental no-key market data and falls back safely when unavailable.
+
+System Pulse is published as a standalone live example for sharing and evaluation: https://mploscos.github.io/latido/system-pulse/
 
 `@latido/core` includes adapter sets for this pattern:
 
@@ -130,6 +140,19 @@ npm install
 npm run dev
 ```
 
+Run the production-style System Pulse example:
+
+```sh
+npm --workspace examples/system-pulse run dev
+```
+
+It works without API keys or a backend. If external data is unavailable, the example keeps running with deterministic local fallback data.
+
+Production links:
+
+- Demo gallery: https://mploscos.github.io/latido/
+- System Pulse: https://mploscos.github.io/latido/system-pulse/
+
 ---
 
 ## Design Principles
@@ -151,13 +174,14 @@ npm run dev
 - WebSocket and SSE sources: `@latido/network`  
 - Browser event sources: `@latido/events`  
 
-`@latido/waapi` and `@latido/network` are included as packages, but the demo gallery does not include dedicated examples for them yet.
+`@latido/waapi` is included as a package, but the demo gallery does not include a dedicated example for it yet.
 
-## Roadmap
+## Version 0.4.0
 
-### 0.4.0
-
-- Production examples for network-driven signals  
+- Production-style System Pulse example for network-driven signals
+- Live Open-Meteo weather source with deterministic fallback
+- Experimental no-key market source with deterministic fallback
+- Interpreted perceptual health states over raw signals
 
 ---
 

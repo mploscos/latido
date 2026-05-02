@@ -1,6 +1,6 @@
 {
   "name": "@latido/network",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "WebSocket and Server-Sent Events sources for Latido.",
   "license": "MIT",
   "homepage": "https://mploscos.github.io/latido/",
@@ -33,6 +33,6 @@
     "access": "public"
   },
   "dependencies": {
-    "@latido/core": "0.3.0"
+    "@latido/core": "0.4.0"
   }
 }

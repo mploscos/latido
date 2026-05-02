@@ -31,8 +31,17 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build demo
+      - name: Build demo gallery
         run: npm --workspace examples/basic run build:pages
+
+      - name: Build System Pulse
+        run: npm --workspace examples/system-pulse run build:pages
+
+      - name: Assemble Pages artifact
+        run: |
+          mkdir -p pages-dist/system-pulse
+          cp -R examples/basic/dist/. pages-dist/
+          cp -R examples/system-pulse/dist/. pages-dist/system-pulse/
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
@@ -40,7 +49,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: examples/basic/dist
+          path: pages-dist
 
   deploy:
     needs: build

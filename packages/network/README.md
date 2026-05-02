@@ -28,3 +28,5 @@ latido.start()
 ```
 
 Messages are parsed as JSON when possible. Source selectors can be dot paths, mapper functions, or `true` for the whole payload.
+
+For tests, demos, or custom runtimes, channels can inject a compatible `WebSocket` or `EventSource` constructor.

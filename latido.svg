@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="160"
+   height="148"
+   viewBox="82 56 82 76"
+   version="1.1"
+   id="svg5"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs2" />
+  <style>
+    :root { color: #111111; }
+    @media (prefers-color-scheme: dark) {
+      :root { color: #f2f4f1; }
+    }
+  </style>
+  <g
+     id="layer1">
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:currentColor;stroke-width:8;stroke-dasharray:none;stroke-opacity:1;stroke-linecap:round"
+       id="path235"
+       d="m 75.791459,118.2707 c 0.100398,-5.16449 5.169956,-8.61189 10.034893,-8.19455 6.709974,0.57562 11.071067,7.21541 10.273789,13.63624 -1.024932,8.25423 -9.264162,13.54262 -17.237586,12.35303 C 69.06377,134.6035 62.84163,124.75087 64.430286,115.22649 66.322418,103.88269 77.796188,96.723165 88.870566,98.714978 101.75977,101.0332 109.85895,114.13286 107.46131,126.7566 104.71968,141.19153 89.991028,150.23187 75.81834,147.42659 59.837445,144.2634 49.854872,127.90359 53.069114,112.18227 56.652542,94.655213 74.645075,83.729633 91.914781,87.353806 107.42846,90.609464 118.78583,104.51022 119.59236,120.23049"
+       transform="matrix(-1,0,0,1,207.32821,-24.522936)" />
+  </g>
+</svg>

@@ -1,6 +1,6 @@
 {
   "name": "@latido/core",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Core scheduler and signal pipeline for Latido.",
   "license": "MIT",
   "homepage": "https://mploscos.github.io/latido/",

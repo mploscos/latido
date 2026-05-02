@@ -56,6 +56,20 @@ button {
   transition: transform 90ms ease-out;
 }
 
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.brand-mark {
+  width: 3rem;
+  height: 3rem;
+  object-fit: contain;
+  filter: invert(1);
+  opacity: 0.92;
+}
+
 .eyebrow {
   margin: 0;
   color: #7ee2d6;

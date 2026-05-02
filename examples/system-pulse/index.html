@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Latido System Pulse</title>
+  </head>
+  <body>
+    <main class="pulse-shell">
+      <header class="topbar">
+        <div>
+          <div class="brand">
+            <img class="brand-mark" src="%BASE_URL%latido.svg" alt="" aria-hidden="true">
+            <p class="eyebrow">Latido System Pulse</p>
+          </div>
+          <h1>Living signals for real systems</h1>
+        </div>
+        <nav class="system-tabs" aria-label="System">
+          <button class="system-tab is-active" type="button" data-system="market" aria-pressed="true">Market</button>
+          <button class="system-tab" type="button" data-system="weather" aria-pressed="false">Weather</button>
+        </nav>
+      </header>
+
+      <div class="system-grid">
+        <section class="traditional-panel" aria-label="Traditional data view">
+          <div class="panel-header">
+            <div>
+              <p class="panel-kicker">Traditional view</p>
+              <h2 class="traditional-title">Market data</h2>
+            </div>
+            <label class="location-control">
+              <span>Location</span>
+              <select class="location-select" aria-label="Weather location"></select>
+            </label>
+          </div>
+          <p class="source-status">Market: starting</p>
+          <p class="source-meta">Data source: waiting for first sample</p>
+          <div class="health-card">
+            <span class="health-badge">Unknown</span>
+            <p class="health-reason">Waiting for data</p>
+          </div>
+          <p class="perception-copy">Same data. Different perception.</p>
+          <p class="interpretation-copy">Latido interprets signals into perceptual health states.</p>
+          <dl class="data-table"></dl>
+          <div class="mini-chart" aria-label="Recent health history"></div>
+        </section>
+
+        <section class="stage" aria-label="Perceptual system layer">
+          <p class="panel-kicker perceptual-kicker">Perceptual view</p>
+          <latido-pulse-field></latido-pulse-field>
+          <div class="breath"></div>
+          <latido-pulse-core aria-hidden="true"></latido-pulse-core>
+          <latido-signal-readout aria-label="Signal readout"></latido-signal-readout>
+        </section>
+      </div>
+    </main>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

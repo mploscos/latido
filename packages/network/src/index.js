@@ -65,7 +65,13 @@ function connectChannel(state, channel) {
 }
 
 function connectWebSocket(state, channel) {
-  const socket = new WebSocket(channel.url, channel.protocols)
+  const WebSocketConstructor = channel.WebSocket ?? channel.webSocket ?? globalThis.WebSocket
+
+  if (!WebSocketConstructor) {
+    throw new Error("WebSocket is not available in this environment.")
+  }
+
+  const socket = new WebSocketConstructor(channel.url, channel.protocols)
 
   socket.addEventListener("message", event => {
     updateSources(state, channel, event.data, event)
@@ -75,7 +81,13 @@ function connectWebSocket(state, channel) {
 }
 
 function connectEventSource(state, channel) {
-  const source = new EventSource(channel.url, channel.options)
+  const EventSourceConstructor = channel.EventSource ?? channel.eventSource ?? globalThis.EventSource
+
+  if (!EventSourceConstructor) {
+    throw new Error("EventSource is not available in this environment.")
+  }
+
+  const source = new EventSourceConstructor(channel.url, channel.options)
   const eventName = channel.event ?? "message"
 
   source.addEventListener(eventName, event => {
