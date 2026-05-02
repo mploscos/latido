@@ -9,9 +9,18 @@ template.innerHTML = `
       aspect-ratio: 1;
       transform:
         translate(-50%, -50%)
-        scale(calc(0.86 + var(--energy, 0) * 0.16 + var(--beat, 0) * 0.16))
+        translate(
+          var(--latido-core-jitter-x, 0px),
+          var(--latido-core-jitter-y, 0px)
+        )
+        scale(calc((0.86 + var(--energy, 0) * 0.16 + var(--beat, 0) * 0.16) * var(--latido-core-health-scale, 1)))
         rotate(calc((var(--tone, 0.5) - 0.5) * 10deg));
-      transition: transform 120ms linear;
+      transition:
+        transform var(--latido-core-transition, 120ms linear),
+        opacity var(--latido-core-transition, 120ms linear),
+        filter var(--latido-core-transition, 120ms linear);
+      opacity: var(--latido-core-opacity, 1);
+      filter: var(--latido-core-filter, none);
       z-index: 2;
     }
 
@@ -26,7 +35,7 @@ template.innerHTML = `
       border: 1px solid rgba(242, 244, 241, 0.38);
       box-shadow:
         inset 0 0 54px color-mix(in srgb, var(--latido-cold, #dc404f) calc((1 - var(--tone, 0.5)) * 100%), var(--latido-hot, #28d28c) calc(var(--tone, 0.5) * 100%)),
-        0 0 calc(42px + var(--beat, 0) * 70px) rgba(242, 244, 241, calc(0.08 + var(--beat, 0) * 0.28));
+        0 0 calc((42px + var(--beat, 0) * 70px) * var(--latido-core-glow, 1)) rgba(242, 244, 241, calc(0.08 + var(--beat, 0) * 0.28 + var(--latido-core-glow-alpha, 0)));
       opacity: calc(0.64 + var(--energy, 0) * 0.28);
     }
 

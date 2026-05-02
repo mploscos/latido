@@ -176,13 +176,6 @@ Production links:
 
 `@latido/waapi` is included as a package, but the demo gallery does not include a dedicated example for it yet.
 
-## Version 0.4.0
-
-- Production-style System Pulse example for network-driven signals
-- Live Open-Meteo weather source with deterministic fallback
-- Experimental no-key market source with deterministic fallback
-- Interpreted perceptual health states over raw signals
-
 ---
 
 ## Audio

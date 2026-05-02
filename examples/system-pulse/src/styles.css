@@ -12,6 +12,13 @@
   --health-score: 0.5;
   --health-intensity: 0.2;
   --health-trend: 0.5;
+  --health-glow: 1;
+  --health-expansion: 1;
+  --health-jitter-x: 0px;
+  --health-jitter-y: 0px;
+  --health-stage-opacity: 1;
+  --health-breath-speed: 4200ms;
+  --health-transition: 360ms ease;
   --latido-cold: #dc404f;
   --latido-hot: #28d28c;
 }
@@ -289,6 +296,10 @@ h2 {
   background:
     radial-gradient(circle at 50% 52%, rgba(242, 244, 241, calc(0.05 + var(--health-score) * 0.08)), transparent calc(27% + var(--health-score) * 9%)),
     rgba(8, 12, 16, 0.78);
+  opacity: var(--health-stage-opacity);
+  transition:
+    filter var(--health-transition),
+    opacity var(--health-transition);
 }
 
 .perceptual-kicker {
@@ -305,21 +316,92 @@ h2 {
 }
 
 .breath {
-  opacity: calc(0.18 + var(--energy) * 0.16 + var(--health-score) * 0.12);
+  opacity: calc((0.18 + var(--energy) * 0.16 + var(--health-score) * 0.12) * var(--health-stage-opacity));
   background:
     radial-gradient(circle at 50% 52%, rgba(242, 244, 241, calc(0.04 + var(--beat) * 0.12 + var(--health-score) * 0.1)), transparent calc(20% + var(--pressure) * 12%)),
     linear-gradient(90deg, transparent, rgba(242, 244, 241, calc(0.02 + var(--flow) * 0.04 + var(--health-intensity) * 0.06)), transparent);
   transform:
     translate(
-      calc((var(--health-intensity) - 0.2) * var(--beat) * 8px),
-      calc((0.5 - var(--health-trend)) * var(--health-intensity) * 10px)
+      calc((var(--health-intensity) - 0.2) * var(--beat) * 8px + var(--health-jitter-x)),
+      calc((0.5 - var(--health-trend)) * var(--health-intensity) * 10px + var(--health-jitter-y))
     )
-    scale(calc(0.96 + var(--pressure) * 0.07 + var(--beat) * 0.035 + var(--health-score) * 0.04));
+    scale(calc((0.96 + var(--pressure) * 0.07 + var(--beat) * 0.035 + var(--health-score) * 0.04) * var(--health-expansion)));
+  animation: health-breath var(--health-breath-speed) ease-in-out infinite;
   transition:
-    transform calc(220ms + (1 - var(--health-intensity)) * 520ms) ease,
-    opacity calc(220ms + (1 - var(--health-intensity)) * 520ms) ease;
+    transform var(--health-transition),
+    opacity var(--health-transition);
   z-index: 1;
   pointer-events: none;
+}
+
+latido-pulse-core {
+  --latido-core-health-scale: var(--health-expansion);
+  --latido-core-jitter-x: var(--health-jitter-x);
+  --latido-core-jitter-y: var(--health-jitter-y);
+  --latido-core-glow: var(--health-glow);
+  --latido-core-glow-alpha: calc((var(--health-glow) - 1) * 0.12);
+  --latido-core-opacity: var(--health-stage-opacity);
+  --latido-core-transition: var(--health-transition);
+}
+
+body[data-health="thriving"] {
+  --health-glow: 1.55;
+  --health-expansion: 1.08;
+  --health-stage-opacity: 1;
+  --health-breath-speed: 3600ms;
+  --health-transition: 520ms ease;
+}
+
+body[data-health="healthy"],
+body[data-health="stable"] {
+  --health-glow: 1.12;
+  --health-expansion: 1.01;
+  --health-stage-opacity: 0.96;
+  --health-breath-speed: 5400ms;
+  --health-transition: 760ms ease;
+}
+
+body[data-health="normal"] {
+  --health-glow: 1.04;
+  --health-expansion: 1;
+  --health-stage-opacity: 0.92;
+  --health-breath-speed: 4600ms;
+}
+
+body[data-health="stressed"] {
+  --health-glow: 1.22;
+  --health-expansion: 0.98;
+  --health-jitter-x: calc(var(--irregularity) * var(--beat) * 8px);
+  --health-jitter-y: calc(var(--irregularity) * var(--beat) * -5px);
+  --health-stage-opacity: 0.9;
+  --health-breath-speed: 2600ms;
+  --health-transition: 180ms linear;
+}
+
+body[data-health="unstable"] {
+  --health-glow: 1.16;
+  --health-expansion: 0.97;
+  --health-jitter-x: calc(var(--irregularity) * var(--beat) * -7px);
+  --health-jitter-y: calc(var(--irregularity) * var(--beat) * 6px);
+  --health-stage-opacity: 0.86;
+  --health-breath-speed: 2200ms;
+  --health-transition: 210ms ease-out;
+}
+
+body[data-health="sick"] {
+  --health-glow: 0.72;
+  --health-expansion: 0.88;
+  --health-stage-opacity: 0.64;
+  --health-breath-speed: 6200ms;
+  --health-transition: 520ms ease-in;
+}
+
+body[data-health="recovering"] {
+  --health-glow: 1.24;
+  --health-expansion: 1.03;
+  --health-stage-opacity: 0.94;
+  --health-breath-speed: 5000ms;
+  --health-transition: 1100ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 body[data-health="sick"] .stage,
@@ -333,6 +415,28 @@ body[data-health="healthy"] .stage,
 body[data-health="stable"] .stage,
 body[data-health="normal"] .stage {
   filter: saturate(calc(1 + var(--health-score) * 0.18));
+}
+
+body[data-health="thriving"] .stage {
+  filter:
+    saturate(1.22)
+    brightness(1.12)
+    drop-shadow(0 0 calc(18px + var(--beat) * 28px) rgba(242, 244, 241, 0.18));
+}
+
+body[data-health="sick"] .stage {
+  filter: saturate(0.7) brightness(0.82) contrast(0.96);
+}
+
+@keyframes health-breath {
+  0%,
+  100% {
+    opacity: calc((0.16 + var(--energy) * 0.14 + var(--health-score) * 0.1) * var(--health-stage-opacity));
+  }
+
+  50% {
+    opacity: calc((0.24 + var(--energy) * 0.2 + var(--health-score) * 0.16) * var(--health-stage-opacity));
+  }
 }
 
 @media (max-width: 760px) {
