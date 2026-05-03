@@ -1,6 +1,6 @@
 {
   "name": "@latido/events",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Browser event sources for Latido signals.",
   "license": "MIT",
   "homepage": "https://mploscos.github.io/latido/",

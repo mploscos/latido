@@ -1,6 +1,6 @@
 {
   "name": "@latido/network",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "WebSocket and Server-Sent Events sources for Latido.",
   "license": "MIT",
   "homepage": "https://mploscos.github.io/latido/",

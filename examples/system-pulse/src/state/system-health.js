@@ -10,6 +10,83 @@ const minBadDurationForRecovery = 4
 const trendThreshold = 0.07
 const noiseThreshold = 0.035
 const instabilityThreshold = 0.055
+const marketScoreFactors = [
+  ["deltaBoost", ({ delta }) => clamp(delta / 2.2) * 0.2],
+  ["volumeBoost", ({ volume }) => clamp((volume - 0.45) / 1.25) * 0.12],
+  ["deltaPenalty", ({ delta }) => -clamp(-delta / 2.8) * 0.42],
+  ["volatilityPenalty", ({ volatility }) => -clamp(volatility / 2.4) * 0.32]
+]
+const marketRiskGroups = [
+  {
+    name: "trend",
+    firstMatch: true,
+    rules: [
+      ["strong negative trend", ({ delta }) => delta < -0.9],
+      ["negative trend", ({ delta }) => delta < -0.45]
+    ]
+  },
+  // Market volatility thresholds are calibrated for the current fallback/Stooq
+  // signal shape. Real providers should normalize volatility before reusing
+  // the same interpretation thresholds.
+  {
+    name: "volatility",
+    firstMatch: true,
+    rules: [
+      ["high volatility", ({ volatility }) => volatility > 1.35],
+      ["volatility", ({ volatility }) => volatility > 1]
+    ]
+  },
+  {
+    name: "movement",
+    rules: [
+      ["volatility rising", ({ volatilityDelta }) => volatilityDelta > 0.22],
+      ["negative movement building", ({ deltaDrift }) => deltaDrift < -0.28],
+      ["low activity", ({ volume }) => volume < 0.35],
+      ["positive trend", ({ delta, volatility }) => delta > 0.25 && volatility < 1],
+      ["calm market", ({ calm }) => calm]
+    ]
+  }
+]
+const weatherRiskGroups = [
+  {
+    name: "temperature",
+    rules: [
+      ["temperature stress", ({ temperaturePenalty }) => temperaturePenalty > 0.45]
+    ]
+  },
+  {
+    name: "wind",
+    firstMatch: true,
+    rules: [
+      ["high wind", ({ wind }) => wind > 30],
+      ["wind", ({ wind }) => wind > 20]
+    ]
+  },
+  {
+    name: "precipitation",
+    firstMatch: true,
+    rules: [
+      ["precipitation", ({ precipitation }) => precipitation > 2],
+      ["light precipitation", ({ precipitation }) => precipitation > 0]
+    ]
+  },
+  {
+    name: "pressure",
+    rules: [
+      ["pressure instability", ({ pressureShift }) => pressureShift > 2],
+      ["pressure rising", ({ pressureDelta }) => pressureDelta > 1.4],
+      ["pressure dropping", ({ pressureDelta }) => pressureDelta < -1.4]
+    ]
+  },
+  {
+    name: "recovery",
+    rules: [
+      ["wind easing", ({ wind, previousWind }) => wind < previousWind - 1.2],
+      ["precipitation easing", ({ precipitation, previousPrecipitation }) => precipitation < previousPrecipitation - 0.15],
+      ["calm weather", ({ calm }) => calm]
+    ]
+  }
+]
 
 export function deriveSystemHealth(system, currentValues, history = []) {
   const base = system === "market"
@@ -59,27 +136,11 @@ function deriveMarketBase(values, history) {
   const previousDelta = readOr(previous, "market.delta", delta)
   const volatilityDelta = volatility - previousVolatility
   const deltaDrift = delta - previousDelta
-  const deltaBoost = clamp(delta / 2.2) * 0.2
-  const deltaPenalty = clamp(-delta / 2.8) * 0.42
-  const volatilityPenalty = clamp(volatility / 2.4) * 0.32
-  const volumeBoost = clamp((volume - 0.45) / 1.25) * 0.12
-  const baseScore = clamp(0.72 + deltaBoost + volumeBoost - deltaPenalty - volatilityPenalty)
   const instability = clamp(volatility / 2.4)
   const calm = Math.abs(delta) < 0.22 && volatility < 0.7
-  const domainRisks = []
-
-  // These volatility thresholds are calibrated for the current fallback/Stooq
-  // signal shape. Real providers should normalize volatility before reusing
-  // the same interpretation thresholds.
-  if (delta < -0.9) domainRisks.push("strong negative trend")
-  else if (delta < -0.45) domainRisks.push("negative trend")
-  if (volatility > 1.35) domainRisks.push("high volatility")
-  else if (volatility > 1) domainRisks.push("volatility")
-  if (volatilityDelta > 0.22) domainRisks.push("volatility rising")
-  if (deltaDrift < -0.28) domainRisks.push("negative movement building")
-  if (volume < 0.35) domainRisks.push("low activity")
-  if (delta > 0.25 && volatility < 1) domainRisks.push("positive trend")
-  if (calm) domainRisks.push("calm market")
+  const context = { delta, volume, volatility, volatilityDelta, deltaDrift, calm }
+  const baseScore = scoreFromFactors(0.72, marketScoreFactors, context)
+  const domainRisks = collectRisks(marketRiskGroups, context)
 
   return base("market", baseScore, domainRisks, {
     delta,
@@ -113,6 +174,16 @@ function deriveWeatherBase(values, history) {
   const precipitationPenalty = clamp(precipitation / 8)
   const pressureStabilityPenalty = clamp(pressureShift / 7)
   const pressureRangePenalty = clamp((Math.abs(pressure - 1013) - 22) / 35)
+  const context = {
+    temperature,
+    wind,
+    precipitation,
+    pressureDelta,
+    pressureShift,
+    previousWind,
+    previousPrecipitation,
+    temperaturePenalty
+  }
   const instability = clamp(
     windPenalty * 0.35 +
     precipitationPenalty * 0.3 +
@@ -128,19 +199,7 @@ function deriveWeatherBase(values, history) {
     pressureRangePenalty * 0.06
   )
   const calm = temperaturePenalty === 0 && wind < 12 && precipitation === 0 && pressureShift < 0.8
-  const domainRisks = []
-
-  if (temperaturePenalty > 0.45) domainRisks.push("temperature stress")
-  if (wind > 30) domainRisks.push("high wind")
-  else if (wind > 20) domainRisks.push("wind")
-  if (precipitation > 2) domainRisks.push("precipitation")
-  else if (precipitation > 0) domainRisks.push("light precipitation")
-  if (pressureShift > 2) domainRisks.push("pressure instability")
-  if (pressureDelta > 1.4) domainRisks.push("pressure rising")
-  if (pressureDelta < -1.4) domainRisks.push("pressure dropping")
-  if (wind < previousWind - 1.2) domainRisks.push("wind easing")
-  if (precipitation < previousPrecipitation - 0.15) domainRisks.push("precipitation easing")
-  if (calm) domainRisks.push("calm weather")
+  const domainRisks = collectRisks(weatherRiskGroups, { ...context, calm })
 
   return base("weather", baseScore, domainRisks, {
     temperature,
@@ -402,6 +461,28 @@ function unknownBase() {
     domainRisks: [],
     metrics: {}
   }
+}
+
+function scoreFromFactors(initialScore, factors, context) {
+  let score = initialScore
+  for (const [, factor] of factors) {
+    score += factor(context)
+  }
+  return clamp(score)
+}
+
+function collectRisks(groups, context) {
+  const risks = []
+
+  for (const group of groups) {
+    for (const [risk, matches] of group.rules) {
+      if (!matches(context)) continue
+      risks.push(risk)
+      if (group.firstMatch) break
+    }
+  }
+
+  return risks
 }
 
 function consecutiveStateDuration(history, state) {

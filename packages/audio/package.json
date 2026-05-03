@@ -1,6 +1,6 @@
 {
   "name": "@latido/audio",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Web Audio sources for Latido.",
   "license": "MIT",
   "homepage": "https://mploscos.github.io/latido/",

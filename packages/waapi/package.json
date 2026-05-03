@@ -1,6 +1,6 @@
 {
   "name": "@latido/waapi",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Web Animations API bindings for Latido signals.",
   "license": "MIT",
   "homepage": "https://mploscos.github.io/latido/",
