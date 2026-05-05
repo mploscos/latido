@@ -6,10 +6,10 @@ const systemConfig = {
     cold: "#dc404f",
     hot: "#28d28c",
     metrics: [
-      { key: "price", label: "Price", source: "market.price", format: value => value.toFixed(2) },
-      { key: "delta", label: "Delta", source: "market.delta", format: value => `${value >= 0 ? "+" : ""}${value.toFixed(2)}%` },
-      { key: "volume", label: "Activity", source: "market.volume", format: value => value.toFixed(2) },
-      { key: "volatility", label: "Volatility", source: "market.volatility", format: value => value.toFixed(2) }
+      { key: "price", label: "Price", source: "market.price", format: fixed(2) },
+      { key: "delta", label: "Delta", source: "market.delta", format: signedPercent(2) },
+      { key: "volume", label: "Activity", source: "market.volume", format: fixed(2) },
+      { key: "volatility", label: "Volatility", source: "market.volatility", format: fixed(2) }
     ]
   },
   weather: {
@@ -19,10 +19,17 @@ const systemConfig = {
     cold: "#5292e0",
     hot: "#ee9358",
     metrics: [
-      { key: "temperature", label: "Temperature", source: "weather.temperature", format: value => `${value.toFixed(1)} C` },
-      { key: "wind", label: "Wind", source: "weather.wind", format: value => `${value.toFixed(1)} km/h` },
-      { key: "pressure", label: "Pressure", source: "weather.pressure", format: value => `${value.toFixed(0)} hPa` },
-      { key: "precipitation", label: "Precipitation", source: "weather.precipitation", format: value => `${value.toFixed(1)} mm` }
+      { key: "condition", label: "Condition", source: "weather.weatherCode", format: value => weatherCodeLabel(value) },
+      { key: "temperature", label: "Temperature", source: "weather.temperature", format: unit("C", 1) },
+      { key: "wind", label: "Wind", source: "weather.wind", format: unit("km/h", 1) },
+      { key: "windDirection", label: "Direction", source: "weather.windDirection", format: value => compassLabel(value) },
+      { key: "gusts", label: "Gusts", source: "weather.windGusts", format: unit("km/h", 1) },
+      { key: "pressure", label: "Pressure", source: "weather.pressure", format: unit("hPa", 0) },
+      { key: "precipitation", label: "Precipitation", source: "weather.precipitation", format: unit("mm", 1) },
+      { key: "rain", label: "Rain", source: "weather.rain", format: unit("mm", 1) },
+      { key: "showers", label: "Showers", source: "weather.showers", format: unit("mm", 1) },
+      { key: "snowfall", label: "Snowfall", source: "weather.snowfall", format: unit("cm", 1) },
+      { key: "cloudCover", label: "Cloud cover", source: "weather.cloudCover", format: unit("%", 0, "") }
     ]
   }
 }
@@ -151,8 +158,11 @@ export function createSystemPulseView(options = {}) {
     root.style.setProperty("--health-score", health.score.toFixed(4))
     root.style.setProperty("--health-intensity", health.intensity.toFixed(4))
     root.style.setProperty("--health-trend", health.trend === "improving" ? "1" : health.trend === "worsening" ? "0" : "0.5")
-    root.style.setProperty("--latido-cold", (healthPalette[health.state] ?? healthPalette.unknown).cold)
-    root.style.setProperty("--latido-hot", (healthPalette[health.state] ?? healthPalette.unknown).hot)
+    const palette = state.system === "weather"
+      ? weatherPalette(source)
+      : (healthPalette[health.state] ?? healthPalette.unknown)
+    root.style.setProperty("--latido-cold", palette.cold)
+    root.style.setProperty("--latido-hot", palette.hot)
     locationSelect.hidden = state.system !== "weather"
     dataTable.replaceChildren(...config.metrics.map(metric => metricRow(metric, source)))
     renderHealthSparkline(source?.history ?? [], health)
@@ -222,4 +232,61 @@ export function createSystemPulseView(options = {}) {
 
 function clamp(value, min = 0, max = 1) {
   return Math.min(max, Math.max(min, value))
+}
+
+function fixed(decimals) {
+  return value => Number(value).toFixed(decimals)
+}
+
+function signedPercent(decimals) {
+  return value => `${value >= 0 ? "+" : ""}${Number(value).toFixed(decimals)}%`
+}
+
+function unit(label, decimals, separator = " ") {
+  return value => `${Number(value).toFixed(decimals)}${separator}${label}`
+}
+
+function weatherCodeLabel(value) {
+  const code = Number(value)
+
+  if (code === 0) return "Clear"
+  if (code === 1) return "Mainly clear"
+  if (code === 2) return "Partly cloudy"
+  if (code === 3) return "Overcast"
+  if (code === 45 || code === 48) return "Fog"
+  if (code >= 51 && code <= 57) return "Drizzle"
+  if (code >= 61 && code <= 67) return "Rain"
+  if (code >= 71 && code <= 77) return "Snow"
+  if (code >= 80 && code <= 82) return "Showers"
+  if (code >= 85 && code <= 86) return "Snow showers"
+  if (code >= 95) return "Thunderstorm"
+  return `Code ${Number.isFinite(code) ? code.toFixed(0) : "?"}`
+}
+
+function weatherPalette(source) {
+  const temperature = Number(source?.values?.["weather.temperature"])
+  const snowfall = Number(source?.values?.["weather.snowfall"])
+  const weatherCode = Number(source?.values?.["weather.weatherCode"])
+
+  if (Number.isFinite(snowfall) && snowfall > 0.1 || weatherCode >= 71 && weatherCode <= 77 || weatherCode >= 85 && weatherCode <= 86) {
+    return { cold: "#d8f3ff", hot: "#6fb7ff" }
+  }
+
+  if (Number.isFinite(temperature)) {
+    if (temperature <= 2) return { cold: "#d8f3ff", hot: "#70b8ff" }
+    if (temperature <= 10) return { cold: "#9ed8ff", hot: "#5f94dd" }
+    if (temperature >= 15 && temperature <= 25) return { cold: "#5bbf8f", hot: "#b7e77a" }
+    if (temperature >= 30) return { cold: "#ffb05e", hot: "#ff5d4f" }
+    if (temperature >= 24) return { cold: "#ffd36b", hot: "#ef8b52" }
+    return { cold: "#75c6a5", hot: "#d7db74" }
+  }
+
+  return { cold: "#5bbf8f", hot: "#b7e77a" }
+}
+
+function compassLabel(value) {
+  const degrees = ((Number(value) % 360) + 360) % 360
+  const labels = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"]
+  const index = Math.round(degrees / 45) % labels.length
+  return `${labels[index]} ${degrees.toFixed(0)} deg`
 }

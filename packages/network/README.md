@@ -2,6 +2,8 @@
 
 WebSocket and Server-Sent Events sources for Latido.
 
+[Documentation](https://mploscos.github.io/latido/) · [GitHub](https://github.com/mploscos/latido)
+
 ## Usage
 
 ```js

@@ -9,6 +9,10 @@
   --pressure: 0.5;
   --irregularity: 0;
   --beat: 0;
+  --precipitation: 0;
+  --rain: 0;
+  --showers: 0;
+  --snowfall: 0;
   --health-score: 0.5;
   --health-intensity: 0.2;
   --health-trend: 0.5;
@@ -19,6 +23,24 @@
   --health-stage-opacity: 1;
   --health-breath-speed: 4200ms;
   --health-transition: 360ms ease;
+  --latido-field-speed-bias: 0;
+  --latido-field-density-bias: 0;
+  --latido-field-swirl-bias: 0;
+  --latido-field-jitter-bias: 0;
+  --latido-field-fall: 0;
+  --latido-field-wind-x: 0;
+  --latido-field-wind-y: 0;
+  --latido-field-wind-angle: 0;
+  --latido-field-stretch: 0;
+  --latido-core-wind-x: 0;
+  --latido-core-wind-y: 0;
+  --latido-core-wind-force: 0;
+  --latido-core-wind-angle: 0;
+  --latido-field-speed: calc(0.62 + var(--energy) * 1.25 + var(--flow) * 0.75 + var(--health-intensity) * 0.65 + var(--latido-field-speed-bias));
+  --latido-field-density: calc(0.24 + var(--energy) * 0.44 + var(--health-score) * 0.12 + var(--health-intensity) * 0.16 + var(--latido-field-density-bias));
+  --latido-field-swirl: calc(0.82 + var(--flow) * 1.65 + var(--health-intensity) * 0.55 + var(--latido-field-swirl-bias));
+  --latido-field-jitter: calc(0.72 + var(--irregularity) * 1.2 + var(--health-intensity) * 0.45 + var(--latido-field-jitter-bias));
+  --latido-field-pulse: calc(0.72 + var(--health-intensity) * 0.7);
   --latido-cold: #dc404f;
   --latido-hot: #28d28c;
 }
@@ -39,6 +61,15 @@ body {
 }
 
 body[data-system="weather"] {
+  --latido-field-speed: calc(0.28 + var(--rain) * 1.8 + var(--showers) * 2.25 + var(--snowfall) * 0.34 + var(--latido-core-wind-force) * 0.72);
+  --latido-field-density: calc(var(--precipitation) * 0.32 + var(--rain) * 0.22 + var(--showers) * 0.3 + var(--snowfall) * 0.42);
+  --latido-field-swirl: calc(0.14 + var(--showers) * 0.72 + var(--latido-core-wind-force) * 0.4);
+  --latido-field-jitter: calc(0.2 + var(--showers) * 1.2 + var(--rain) * 0.24);
+  --latido-field-fall: calc(var(--rain) * 0.95 + var(--showers) * 1.08 + var(--snowfall) * 0.28);
+  --latido-field-wind-x: var(--latido-core-wind-x);
+  --latido-field-wind-y: var(--latido-core-wind-y);
+  --latido-field-wind-angle: var(--latido-core-wind-angle);
+  --latido-field-stretch: calc(var(--rain) * 0.82 + var(--showers) * 1.05);
   background:
     linear-gradient(145deg, rgba(82, 146, 224, calc(0.16 - var(--tone) * 0.08)), transparent 42%),
     linear-gradient(35deg, rgba(238, 147, 88, calc(0.08 + var(--tone) * 0.12)), transparent 52%),
@@ -302,6 +333,15 @@ h2 {
     opacity var(--health-transition);
 }
 
+body[data-system="weather"] latido-pulse-field {
+  opacity: calc(var(--precipitation) * 0.46 + var(--rain) * 0.34 + var(--showers) * 0.38 + var(--snowfall) * 0.58);
+  transition: opacity 700ms ease;
+}
+
+body[data-system="weather"] latido-pulse-field:not(:defined) {
+  opacity: 0;
+}
+
 .perceptual-kicker {
   position: absolute;
   left: 18px;
@@ -342,6 +382,17 @@ latido-pulse-core {
   --latido-core-glow-alpha: calc((var(--health-glow) - 1) * 0.12);
   --latido-core-opacity: var(--health-stage-opacity);
   --latido-core-transition: var(--health-transition);
+  --latido-core-wind-offset: 18px;
+  --latido-core-wind-bulge: 28px;
+  --latido-core-mark-opacity: calc(0.52 + var(--health-score) * 0.24);
+}
+
+.pulse-core-mark {
+  display: block;
+  width: 100%;
+  height: 100%;
+  filter: invert(1);
+  opacity: 0.86;
 }
 
 body[data-health="thriving"] {
@@ -350,6 +401,9 @@ body[data-health="thriving"] {
   --health-stage-opacity: 1;
   --health-breath-speed: 3600ms;
   --health-transition: 520ms ease;
+  --latido-field-speed-bias: 0.22;
+  --latido-field-density-bias: 0.2;
+  --latido-field-swirl-bias: 0.2;
 }
 
 body[data-health="healthy"],
@@ -359,6 +413,8 @@ body[data-health="stable"] {
   --health-stage-opacity: 0.96;
   --health-breath-speed: 5400ms;
   --health-transition: 760ms ease;
+  --latido-field-speed-bias: -0.08;
+  --latido-field-jitter-bias: -0.18;
 }
 
 body[data-health="normal"] {
@@ -366,6 +422,7 @@ body[data-health="normal"] {
   --health-expansion: 1;
   --health-stage-opacity: 0.92;
   --health-breath-speed: 4600ms;
+  --latido-field-speed-bias: 0.02;
 }
 
 body[data-health="stressed"] {
@@ -376,6 +433,10 @@ body[data-health="stressed"] {
   --health-stage-opacity: 0.9;
   --health-breath-speed: 2600ms;
   --health-transition: 180ms linear;
+  --latido-field-speed-bias: 0.34;
+  --latido-field-density-bias: 0.1;
+  --latido-field-swirl-bias: 0.28;
+  --latido-field-jitter-bias: 0.42;
 }
 
 body[data-health="unstable"] {
@@ -386,6 +447,10 @@ body[data-health="unstable"] {
   --health-stage-opacity: 0.86;
   --health-breath-speed: 2200ms;
   --health-transition: 210ms ease-out;
+  --latido-field-speed-bias: 0.42;
+  --latido-field-density-bias: 0.04;
+  --latido-field-swirl-bias: 0.38;
+  --latido-field-jitter-bias: 0.56;
 }
 
 body[data-health="sick"] {
@@ -394,6 +459,10 @@ body[data-health="sick"] {
   --health-stage-opacity: 0.64;
   --health-breath-speed: 6200ms;
   --health-transition: 520ms ease-in;
+  --latido-field-speed-bias: -0.22;
+  --latido-field-density-bias: -0.08;
+  --latido-field-swirl-bias: -0.08;
+  --latido-field-jitter-bias: 0.18;
 }
 
 body[data-health="recovering"] {
@@ -402,6 +471,10 @@ body[data-health="recovering"] {
   --health-stage-opacity: 0.94;
   --health-breath-speed: 5000ms;
   --health-transition: 1100ms cubic-bezier(0.22, 1, 0.36, 1);
+  --latido-field-speed-bias: 0.02;
+  --latido-field-density-bias: 0.08;
+  --latido-field-swirl-bias: 0.04;
+  --latido-field-jitter-bias: -0.1;
 }
 
 body[data-health="sick"] .stage,

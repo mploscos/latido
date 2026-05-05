@@ -1,5 +1,6 @@
 import { createLatido } from "@latido/core"
 import { audio } from "@latido/audio"
+import { audioSignals } from "@latido/audio/signals"
 import { dom } from "@latido/dom"
 import { targets } from "@latido/targets"
 import { Application, Container, Graphics, Text } from "pixi.js"
@@ -44,7 +45,7 @@ async function main() {
     .use(audio({ element: audioElement }))
     .use(targets({ container: pixiScene.scene }))
 
-  latido.signal("audio.energy")
+  latido.signal(audioSignals.energy)
     .smooth(0.15)
     .clamp(0, 1)
     .bindCSSVar(root, "--energy")
@@ -56,7 +57,7 @@ async function main() {
     .bindTarget(canvasState, "energy")
     .bindTarget(threeState, "energy")
 
-  latido.signal("audio.bass")
+  latido.signal(audioSignals.bass)
     .smooth(0.12)
     .clamp(0, 1)
     .bindCSSVar(root, "--bass")
@@ -65,7 +66,7 @@ async function main() {
     .bindTarget(canvasState, "bass")
     .bindTarget(threeState, "bass")
 
-  latido.signal("audio.mid")
+  latido.signal(audioSignals.mid)
     .smooth(0.14)
     .clamp(0, 1)
     .bindCSSVar(root, "--mid")
@@ -73,7 +74,7 @@ async function main() {
     .bindTarget(canvasState, "mid")
     .bindTarget(threeState, "mid")
 
-  latido.signal("audio.treble")
+  latido.signal(audioSignals.treble)
     .smooth(0.18)
     .clamp(0, 1)
     .bindCSSVar(root, "--treble")
@@ -82,7 +83,7 @@ async function main() {
     .bindTarget(canvasState, "treble")
     .bindTarget(threeState, "treble")
 
-  latido.signal("audio.trebleFlux")
+  latido.signal(audioSignals.trebleFlux)
     .smooth(0.035)
     .spawnTarget((value, context) => {
       const minInterval = visual.safeMode ? 420 : 333
@@ -108,7 +109,7 @@ async function main() {
       }
     })
 
-  latido.signal("audio.beat")
+  latido.signal(audioSignals.beat)
     .bind((value, context) => {
       if (value === 1 && flashLimiter.allow(context.time)) {
         visual.beat = 1
@@ -124,7 +125,7 @@ async function main() {
       threeState.beat = beat
     })
 
-  latido.signal("audio.flux")
+  latido.signal(audioSignals.flux)
     .smooth(0.08)
     .bind(value => {
       const flux = visual.safeMode ? Math.min(0.62, value) : value
@@ -135,7 +136,7 @@ async function main() {
       pixiScene.burst.alpha = 0.1 + flux * (visual.safeMode ? 0.36 : 0.72)
     })
 
-  latido.signal("audio.impact")
+  latido.signal(audioSignals.impact)
     .bind(value => {
       const impact = visual.safeMode ? Math.min(0.58, value) : value
       root.style.setProperty("--impact", String(impact))

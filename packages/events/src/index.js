@@ -1,3 +1,5 @@
+export { eventSignals } from "./signals.js"
+
 /**
  * Creates the Latido browser events source plugin.
  *

@@ -7,6 +7,18 @@
  * @param {() => number} [options.now]
  * @returns {Latido}
  */
+export { signalPipe } from "./signal-pipes.js"
+export { createHealthInterpreter } from "./health/create-health-interpreter.js"
+export {
+  clamp,
+  collectRisks,
+  createBaseHealth,
+  previousValues,
+  read,
+  readOr,
+  scoreFromFactors
+} from "./rules/index.js"
+
 export function createLatido(options = {}) {
   return new Latido(options)
 }

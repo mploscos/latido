@@ -2,188 +2,89 @@
 
 <img src="./latido.svg" alt="Latido logo" width="128">
 
-> Turn signals into living interfaces.
+> Latido turns signals into perceptual interfaces.
 
 <p>
   <img src="./assets/demo.gif" alt="Latido demo" width="49%">
   <img src="./assets/system-pulse.gif" alt="Latido System Pulse demo" width="49%">
 </p>
 
-Make one signal drive multiple render targets in sync.
+Latido is a signal engine for living interfaces.
 
 ```txt
-audio signal
-  → DOM
-  → PixiJS
-  → Canvas
-  → Three.js
+source → signal → interpretation → behavior → target
 ```
 
----
+It is not a renderer, not a framework and not only audio. Use it to connect real-time values to DOM, Canvas, PixiJS, Three.js, Web Animations API or your own rendering layer.
+
+## Install
+
+```sh
+npm install @latido/web
+```
+
+Use individual packages when you need fine-grained control:
+
+```sh
+npm install @latido/core @latido/dom @latido/audio
+```
 
 ## Quick Start
 
 ```js
-import { createLatido } from "@latido/core"
-import { dom } from "@latido/dom"
-import { audio } from "@latido/audio"
+import { createLatido, dom, audio, signals } from "@latido/web"
 
 const latido = createLatido()
   .use(dom())
-  .use(audio({ element: document.querySelector("audio") }))
+  .use(audio({ element: audioEl }))
 
-latido.signal("audio.energy")
+latido.signal(signals.audio.energy)
   .bindCSSVar(document.body, "--energy")
-
-latido.signal("audio.beat")
-  .bindStyle(".button", "transform", v => `scale(${1 + v * 0.1})`)
 
 latido.start()
 ```
 
-▶️ [Live demo gallery](https://mploscos.github.io/latido/)  
-▶️ [System Pulse live example](https://mploscos.github.io/latido/system-pulse/)  
-Audio starts after pressing **Play**.
+## Links
 
----
+- [Documentation](https://mploscos.github.io/latido/)
 
-## What is Latido?
+## Packages
 
-Latido is a renderer-agnostic rhythm-driven UI engine.
+- `@latido/web`: common browser entrypoint
+- `@latido/core`: scheduler, sources, signals and transforms
+- `@latido/dom`: CSS variables, styles, classes and attributes
+- `@latido/audio`: Web Audio sources and beat/onset analysis
+- `@latido/targets`: renderer-agnostic object bindings
+- `@latido/network`: WebSocket and SSE sources
+- `@latido/events`: browser event sources
+- `@latido/waapi`: Web Animations API bindings
 
-It does not render anything by itself.  
-It connects **signals** to **visual behavior**.
-
-Bind any signal to DOM, Canvas, PixiJS, Three.js, or your own renderer.
-
-The adaptive HMI example maps audio, weather, biology, aeronautics, markets, and browser events into the same normalized signals so the interface can change data domains without changing its bindings.
-
-The System Pulse example turns real-world data into behavior - not charts. Weather Pulse uses live Open-Meteo data with no API key, while Market Pulse tries experimental no-key market data and falls back safely when unavailable.
-
-System Pulse is published as a standalone live example for sharing and evaluation: https://mploscos.github.io/latido/system-pulse/
-
-`@latido/core` includes adapter sets for this pattern:
-
-```js
-const latido = createLatido().adapt("hmi", {
-  initial: "weather",
-  adapters: {
-    weather: weatherAdapter,
-    biology: biologyAdapter
-  }
-})
-
-latido.signal("hmi.energy").bindCSSVar(document.body, "--energy")
-latido.useAdapter("hmi", "biology")
-```
-
----
-
-## Basic Example
-
-```js
-import { createLatido } from "@latido/core"
-import { dom } from "@latido/dom"
-import { audio } from "@latido/audio"
-
-const latido = createLatido()
-  .use(dom())
-  .use(audio({ element: document.querySelector("audio") }))
-
-latido.signal("audio.energy")
-  .smooth(0.15)
-  .bindCSSVar(document.body, "--energy")
-
-latido.signal("audio.beat")
-  .decay(0.2)
-  .bindStyle(".beat-button", "transform", v => `scale(${1 + v * 0.12})`)
-
-latido.start()
-```
-
----
-
-## Targets
-
-Latido works with two kinds of targets:
-
-### DOM (`@latido/dom`)
-CSS variables, styles, classes and attributes.
-
-### Objects (`@latido/targets`)
-Any renderer with object properties:
-
-- PixiJS  
-- Three.js  
-- Canvas state  
-- Custom engines  
-
-```js
-latido.signal("audio.energy")
-  .bindTarget(mesh, "scale", v => 1 + v * 0.4)
-```
-
----
-
-## Signal Pipeline
-
-```txt
-source → signal → transform → binding → target
-```
-
----
-
-## Run the Demo
+## Run Locally
 
 ```sh
 npm install
 npm run dev
 ```
 
-Run the production-style System Pulse example:
+Run the docs site:
+
+```sh
+npm --workspace examples/docs run dev
+```
+
+Run System Pulse:
 
 ```sh
 npm --workspace examples/system-pulse run dev
 ```
 
-It works without API keys or a backend. If external data is unavailable, the example keeps running with deterministic local fallback data.
+## Version 0.5.0
 
-Production links:
-
-- Demo gallery: https://mploscos.github.io/latido/
-- System Pulse: https://mploscos.github.io/latido/system-pulse/
-
----
-
-## Design Principles
-
-- Latido is not a renderer  
-- Latido is not tied to audio  
-- Latido is not a framework  
-- Latido converts signals into behavior  
-
----
-
-## Packages
-
-- Core signal pipeline and adapters: `@latido/core`  
-- Audio analysis and beat/onset sources: `@latido/audio`  
-- DOM bindings: `@latido/dom`  
-- Object target bindings: `@latido/targets`  
-- Web Animations API bindings: `@latido/waapi`  
-- WebSocket and SSE sources: `@latido/network`  
-- Browser event sources: `@latido/events`  
-
-`@latido/waapi` is included as a package, but the demo gallery does not include a dedicated example for it yet.
-
----
-
-## Audio
-
-Demo audio by Kissan4  
-https://pixabay.com/es/users/kissan4-10387284/  
-
----
+- New Vite documentation site focused on onboarding and adoption
+- New `@latido/web` browser entrypoint
+- System Pulse weather source now interprets Open-Meteo conditions, gusts, rain, showers and snowfall
+- Concise README pointing to live docs and examples
+- Documentation for concepts, packages, examples, recipes, API and roadmap
 
 ## Author
 

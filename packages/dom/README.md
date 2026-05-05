@@ -6,7 +6,7 @@ DOM bindings for Latido signals.
 
 ![Latido demo](https://raw.githubusercontent.com/mploscos/latido/main/assets/demo.gif)
 
-[Live demo](https://mploscos.github.io/latido/) · [GitHub](https://github.com/mploscos/latido)
+[Documentation](https://mploscos.github.io/latido/) · [GitHub](https://github.com/mploscos/latido)
 
 ## Install
 

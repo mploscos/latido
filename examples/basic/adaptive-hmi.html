@@ -28,10 +28,9 @@
         <section class="instrument hero-instrument" aria-label="Primary signal">
           <div class="scope">
             <canvas class="wave-canvas"></canvas>
-            <div class="core">
-              <span class="core-ring"></span>
-              <span class="core-pulse"></span>
-            </div>
+            <latido-pulse-core aria-hidden="true">
+              <img class="pulse-core-mark" slot="mark" src="%BASE_URL%latido.svg" alt="">
+            </latido-pulse-core>
           </div>
           <div class="readout-row">
             <div>

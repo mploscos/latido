@@ -6,26 +6,29 @@ Renderer-agnostic target bindings for Latido signals.
 
 ![Latido demo](https://raw.githubusercontent.com/mploscos/latido/main/assets/demo.gif)
 
-[Live demo](https://mploscos.github.io/latido/) · [GitHub](https://github.com/mploscos/latido)
+[Documentation](https://mploscos.github.io/latido/) · [GitHub](https://github.com/mploscos/latido)
 
 ## Install
 
 ```sh
-npm install @latido/core @latido/targets
+npm install @latido/core @latido/audio @latido/targets
 ```
 
 ## Usage
 
 ```js
 import { createLatido } from "@latido/core"
+import { audio, audioSignals } from "@latido/audio"
 import { targets } from "@latido/targets"
 
-const latido = createLatido().use(targets())
+const latido = createLatido()
+  .use(audio({ element: audioEl }))
+  .use(targets())
 
-latido.signal("audio.energy")
+latido.signal(audioSignals.energy)
   .bindTarget(sprite, "scale", v => 1 + v * 0.5)
 
-latido.signal("audio.beat")
+latido.signal(audioSignals.beat)
   .spawnTarget(() => createRing(), { lifeMs: 900 })
 
 latido.start()
@@ -50,13 +53,13 @@ Options:
 ### `bindTarget(target, property, mapper?)`
 
 ```js
-latido.signal("audio.energy")
+latido.signal(audioSignals.energy)
   .bindTarget(sprite, "alpha", v => 0.4 + v * 0.6)
 
-latido.signal("audio.bass")
+latido.signal(audioSignals.bass)
   .bindTarget(sprite, "scale", v => 1 + v * 0.5)
 
-latido.signal("audio.treble")
+latido.signal(audioSignals.treble)
   .bindTarget(material, "uniforms.intensity.value")
 ```
 
@@ -67,7 +70,7 @@ When a target property is point-like, values can be a number, `[x, y]`, or `{ x,
 ### `bindTargetProps(target, props)`
 
 ```js
-latido.signal("audio.energy")
+latido.signal(audioSignals.energy)
   .bindTargetProps(sprite, {
     alpha: v => 0.5 + v * 0.5,
     scale: v => 1 + v * 0.4,
@@ -78,7 +81,7 @@ latido.signal("audio.energy")
 ### `spawnTarget(factory, options?)`
 
 ```js
-latido.signal("audio.beat")
+latido.signal(audioSignals.beat)
   .pulse(120)
   .spawnTarget(() => createRing(), {
     lifeMs: 900,

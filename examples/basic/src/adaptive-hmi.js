@@ -1,8 +1,11 @@
 import { createLatido } from "@latido/core"
-import { dom } from "@latido/dom"
+import { defineLatidoPulseCore, dom } from "@latido/dom"
 import { audio } from "@latido/audio"
 import { events } from "@latido/events"
+import { eventSignals } from "@latido/events/signals"
 import "./adaptive-hmi.css"
+
+defineLatidoPulseCore()
 
 const root = document.documentElement
 const body = document.body
@@ -90,20 +93,26 @@ function bindHmi(engine) {
       hmi.phase = value
     })
 
-  engine.signal("hmi.primary").bind(value => {
-    hmi.primary = value
-    primaryValue.textContent = value.toFixed(2)
-  })
+  engine.signal("hmi.primary")
+    .bindCSSVar(root, "--primary")
+    .bind(value => {
+      hmi.primary = value
+      primaryValue.textContent = value.toFixed(2)
+    })
 
-  engine.signal("hmi.secondary").bind(value => {
-    hmi.secondary = value
-    secondaryValue.textContent = value.toFixed(2)
-  })
+  engine.signal("hmi.secondary")
+    .bindCSSVar(root, "--secondary")
+    .bind(value => {
+      hmi.secondary = value
+      secondaryValue.textContent = value.toFixed(2)
+    })
 
-  engine.signal("hmi.tertiary").bind(value => {
-    hmi.tertiary = value
-    tertiaryValue.textContent = value.toFixed(2)
-  })
+  engine.signal("hmi.tertiary")
+    .bindCSSVar(root, "--tertiary")
+    .bind(value => {
+      hmi.tertiary = value
+      tertiaryValue.textContent = value.toFixed(2)
+    })
 }
 
 async function setSource(name) {
@@ -319,9 +328,9 @@ function createAdapters() {
         tertiary: "Click pulse"
       },
       read(context) {
-        const x = context.latido.values.get("event.pointer.progressX") ?? 0
-        const y = context.latido.values.get("event.pointer.progressY") ?? 0
-        const click = context.latido.values.get("event.click.pulse") ?? 0
+        const x = context.latido.values.get(eventSignals.pointerProgressX) ?? 0
+        const y = context.latido.values.get(eventSignals.pointerProgressY) ?? 0
+        const click = context.latido.values.get(eventSignals.clickPulse) ?? 0
         const movement = Math.abs(x - 0.5) + Math.abs(y - 0.5)
 
         return {

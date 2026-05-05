@@ -1,6 +1,6 @@
 {
   "name": "latido",
-  "version": "0.4.2",
+  "version": "0.5.0",
   "private": true,
   "description": "Latido — a rhythm-driven UI engine for the web",
   "license": "MIT",
@@ -11,6 +11,7 @@
   ],
   "scripts": {
     "dev": "npm --workspace examples/basic run dev",
+    "dev:docs": "npm --workspace examples/docs run dev",
     "build": "npm --workspaces --if-present run build"
   },
   "devDependencies": {

@@ -126,6 +126,28 @@ h1 {
   height: 100%;
 }
 
+latido-pulse-core {
+  --latido-core-top: 50%;
+  --latido-core-size: min(34vw, 310px);
+  --latido-core-health-scale: 1;
+  --latido-core-glow: 1.12;
+  --latido-core-glow-alpha: calc(var(--pulse) * 0.08);
+  --latido-core-mark-opacity: 0.72;
+  --latido-core-transition: 180ms ease;
+  --beat: var(--pulse);
+  --tone: var(--primary, 0.5);
+  --irregularity: var(--volatility);
+}
+
+.pulse-core-mark {
+  display: block;
+  width: 100%;
+  height: 100%;
+  filter: invert(1);
+  opacity: 0.84;
+}
+
+/* Kept for old snapshots only; the live example uses <latido-pulse-core>. */
 .core {
   position: absolute;
   left: 50%;

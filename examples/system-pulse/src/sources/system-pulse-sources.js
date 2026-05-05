@@ -1,5 +1,6 @@
 import { createMarketSource } from "./market-source.js"
 import { createOpenMeteoSource, weatherLocations } from "./open-meteo-source.js"
+import { deriveWeatherVisuals } from "./weather-visuals.js"
 import { deriveSystemHealth } from "../state/system-health.js"
 
 const sourceNames = [
@@ -13,8 +14,22 @@ const sourceNames = [
   "market.healthIntensity",
   "weather.temperature",
   "weather.wind",
+  "weather.windDirection",
+  "weather.windGusts",
   "weather.pressure",
   "weather.precipitation",
+  "weather.rain",
+  "weather.showers",
+  "weather.snowfall",
+  "weather.cloudCover",
+  "weather.weatherCode",
+  "weather.visualEnergy",
+  "weather.visualFlow",
+  "weather.visualIrregularity",
+  "weather.visualBeat",
+  "weather.visualWindX",
+  "weather.visualWindY",
+  "weather.visualWindAngle",
   "weather.healthScore",
   "weather.healthTrend",
   "weather.healthIntensity"
@@ -71,6 +86,13 @@ export function createSystemPulseSources(options = {}) {
       snapshot.provider = data.provider
       snapshot.source = data.source ?? snapshot.source
       snapshot.values = { ...snapshot.values, ...data.values }
+      if (system === "weather") {
+        const visuals = deriveWeatherVisuals(snapshot.values)
+        snapshot.values = { ...snapshot.values, ...visuals }
+        for (const [name, value] of Object.entries(visuals)) {
+          values.set(name, value)
+        }
+      }
       snapshot.health = deriveSystemHealth(system, snapshot.values, snapshot.history)
       values.set(`${system}.healthScore`, snapshot.health.score)
       values.set(`${system}.healthTrend`, snapshot.health.trendCode)

@@ -1,3 +1,5 @@
+export { audioSignals } from "./signals.js"
+
 const elementSources = new WeakMap()
 
 /**

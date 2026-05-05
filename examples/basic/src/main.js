@@ -1,6 +1,7 @@
 import { createLatido } from "@latido/core"
 import { dom } from "@latido/dom"
 import { audio } from "@latido/audio"
+import { audioSignals } from "@latido/audio/signals"
 import "./styles.css"
 
 const button = document.querySelector(".beat-button")
@@ -14,33 +15,33 @@ const latido = createLatido()
   .use(dom())
   .use(audio({ element: audioElement }))
 
-latido.signal("audio.energy")
+latido.signal(audioSignals.energy)
   .smooth(0.15)
   .clamp(0, 1)
   .bindCSSVar(document.body, "--energy")
 
-latido.signal("audio.beat")
+latido.signal(audioSignals.beat)
   .decay(0.2)
   .bindStyle(".beat-button", "transform", value => `scale(${1 + value * 0.12})`)
   .bindClass(".beat-button", "is-beating", value => value > 0.5)
   .bindClass(document.body, "is-beating", value => value > 0.5)
 
-latido.signal("audio.flux")
+latido.signal(audioSignals.flux)
   .smooth(0.08)
   .bindCSSVar(document.body, "--flux")
 
-latido.signal("audio.impact")
+latido.signal(audioSignals.impact)
   .bindCSSVar(document.body, "--impact")
 
-latido.signal("audio.bass")
+latido.signal(audioSignals.bass)
   .smooth(0.1)
   .bindCSSVar(".bar-bass", "--level")
 
-latido.signal("audio.mid")
+latido.signal(audioSignals.mid)
   .smooth(0.1)
   .bindCSSVar(".bar-mid", "--level")
 
-latido.signal("audio.treble")
+latido.signal(audioSignals.treble)
   .smooth(0.1)
   .bindCSSVar(".bar-treble", "--level")
 

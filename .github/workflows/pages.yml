@@ -1,4 +1,4 @@
-name: Deploy demo to GitHub Pages
+name: Deploy docs to GitHub Pages
 
 on:
   push:
@@ -31,7 +31,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build demo gallery
+      - name: Build docs
+        run: npm --workspace examples/docs run build:pages
+
+      - name: Build example gallery
         run: npm --workspace examples/basic run build:pages
 
       - name: Build System Pulse
@@ -39,8 +42,11 @@ jobs:
 
       - name: Assemble Pages artifact
         run: |
+          mkdir -p pages-dist
+          cp -R examples/docs/dist/. pages-dist/
           mkdir -p pages-dist/system-pulse
-          cp -R examples/basic/dist/. pages-dist/
+          mkdir -p pages-dist/examples
+          cp -R examples/basic/dist/. pages-dist/examples/
           cp -R examples/system-pulse/dist/. pages-dist/system-pulse/
 
       - name: Configure Pages

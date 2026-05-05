@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta
+      name="description"
+      content="Latido turns signals into perceptual interfaces. Learn sources, signals, interpretation layers, bindings and targets."
+    >
+    <title>Latido Docs</title>
+  </head>
+  <body>
+    <div class="site-shell">
+      <aside class="sidebar" aria-label="Documentation navigation">
+        <a class="brand" href="#home" aria-label="Latido home">
+          <img class="brand-mark" src="%BASE_URL%latido.svg" alt="" aria-hidden="true">
+          <span>Latido</span>
+        </a>
+        <nav class="nav">
+          <a href="#quick-start">Quick Start</a>
+          <a href="#concepts">Concepts</a>
+          <a href="#signal-pipes">Signal Pipes</a>
+          <a href="#rule-utils">Rule Utilities</a>
+          <a href="#health-interpreter">Health Interpreter</a>
+          <a href="#packages">Packages</a>
+          <a href="#examples">Examples</a>
+          <a href="#recipes">Recipes</a>
+          <a href="#api">API Reference</a>
+          <a href="#roadmap">Roadmap</a>
+        </nav>
+      </aside>
+
+      <main>
+        <section id="home" class="hero section">
+          <p class="eyebrow">Signal engine for living interfaces</p>
+          <h1>Latido turns signals into perceptual interfaces.</h1>
+          <p class="hero-copy">
+            Connect changing data to behavior so users feel what a system is doing before they read a number.
+          </p>
+          <div class="flow" aria-label="Latido signal pipeline">
+            <span>source</span>
+            <span>signal</span>
+            <span>interpretation</span>
+            <span>behavior</span>
+            <span>target</span>
+          </div>
+          <div class="hero-actions">
+            <a class="button primary" href="#quick-start">Start in 10 seconds</a>
+            <a class="button" data-page-link="examples/">Open examples</a>
+            <a class="button" data-page-link="system-pulse/">Open System Pulse</a>
+          </div>
+          <div class="truths">
+            <p>Not a renderer.</p>
+            <p>Not a framework.</p>
+            <p>Not only audio.</p>
+            <p>A signal engine for living interfaces.</p>
+          </div>
+        </section>
+
+        <section id="quick-start" class="section">
+          <div class="section-heading">
+            <p class="eyebrow">Quick Start</p>
+            <h2>One source, one signal, one binding.</h2>
+          </div>
+          <div class="split">
+            <div>
+              <p>
+                Use <code>@latido/web</code> for common browser projects. It reexports core plus DOM, audio,
+                targets, events, network and WAAPI plugins.
+              </p>
+              <dl class="terms compact">
+                <div><dt>source</dt><dd>where values enter Latido</dd></div>
+                <div><dt>signal</dt><dd>a named stream such as <code>audio.energy</code></dd></div>
+                <div><dt>transform</dt><dd>normalization, smoothing, thresholds or custom mapping</dd></div>
+                <div><dt>binding</dt><dd>how a value changes a target</dd></div>
+                <div><dt>target</dt><dd>DOM, Canvas, PixiJS, Three.js, WAAPI or your object</dd></div>
+              </dl>
+              <p class="callout">
+                Signal names come from sources. The audio plugin registers names like <code>audio.energy</code>.
+                Custom sources use the name you pass to <code>latido.source(name, reader)</code>.
+              </p>
+            </div>
+            <pre><code>import { createLatido, dom, audio, signals } from "@latido/web"
+
+const latido = createLatido()
+  .use(dom())
+  .use(audio({ element: audioEl }))
+
+latido.signal(signals.audio.energy)
+  .bindCSSVar(document.body, "--energy")
+
+latido.start()</code></pre>
+          </div>
+        </section>
+
+        <section id="concepts" class="section">
+          <div class="section-heading">
+            <p class="eyebrow">Concepts</p>
+            <h2>Raw data is not enough.</h2>
+            <p>Latido helps you turn values into behavior, and behavior into perception.</p>
+          </div>
+          <pre class="diagram"><code>API / audio / events / sensors
+        ↓
+source → signal → transform → interpretation → binding → target</code></pre>
+          <div class="concept-grid">
+            <article>
+              <h3>Source</h3>
+              <p>A source reads a value on every Latido tick and owns its signal name. Plugins register source names for you.</p>
+            </article>
+            <article>
+              <h3>Signal</h3>
+              <p>A signal subscribes to a source by name. If no source is registered with that name, the signal reads as 0.</p>
+            </article>
+            <article>
+              <h3>Transform</h3>
+              <p>Transforms shape raw values into usable ranges: <code>normalize</code>, <code>clamp</code>, <code>smooth</code>, <code>decay</code>, <code>threshold</code>, <code>pulse</code> or <code>map</code>.</p>
+            </article>
+            <article>
+              <h3>Binding</h3>
+              <p>A binding applies the transformed value to a target. DOM bindings can write CSS variables, styles, classes and attributes.</p>
+            </article>
+            <article>
+              <h3>Target</h3>
+              <p>A target is what moves, breathes or reacts: DOM, Web Animations, PixiJS, Canvas, Three.js or plain objects.</p>
+            </article>
+            <article>
+              <h3>Interpretation Layer</h3>
+              <p>Interpretation combines several signals into a state such as calm, stressed, thriving or recovering.</p>
+            </article>
+          </div>
+          <div class="name-guide">
+            <h3>How do I know the signal name?</h3>
+            <p>
+              Each plugin exports its own catalog: <code>@latido/audio/signals</code>,
+              <code>@latido/events/signals</code>. <code>@latido/web</code> aggregates them as
+              <code>signals.audio.energy</code>. It gives editors something to autocomplete.
+              Use strings directly for custom sources and network names.
+            </p>
+            <div class="name-grid">
+              <div><code>audio.energy</code><span>registered by <code>audio()</code></span></div>
+              <div><code>audio.beat</code><span>registered by <code>audio()</code></span></div>
+              <div><code>event.click.pulse</code><span>registered by <code>events()</code></span></div>
+              <div><code>event.pointer.progressX</code><span>registered by <code>events()</code></span></div>
+              <div><code>feed.energy</code><span>registered from a network source config</span></div>
+              <div><code>system.healthScore</code><span>registered by your own <code>latido.source()</code></span></div>
+            </div>
+          </div>
+        </section>
+
+        <section id="signal-pipes" class="section">
+          <div class="section-heading">
+            <p class="eyebrow">Simple signal pipes</p>
+            <h2>Most mappings do not need custom pipeline code.</h2>
+            <p>
+              <code>signalPipe</code> helpers are normal functions that apply common transform chains.
+              Use them in binding lists, adapters or small integration layers.
+            </p>
+          </div>
+          <div class="split">
+            <div>
+              <dl class="terms compact">
+                <div><dt><code>signalPipe.normalized(min, max, smooth)</code></dt><dd>normalize input range, clamp to 0..1, then smooth</dd></div>
+                <div><dt><code>signalPipe.clamped(smooth)</code></dt><dd>clamp to 0..1, then smooth</dd></div>
+                <div><dt><code>signalPipe.smooth(amount)</code></dt><dd>smooth only</dd></div>
+                <div><dt><code>signalPipe.zero()</code></dt><dd>always emit 0</dd></div>
+                <div><dt><code>signalPipe.constant(value)</code></dt><dd>always emit a fixed value</dd></div>
+                <div><dt><code>signalPipe.beat(threshold, pulse, decay)</code></dt><dd>threshold, pulse, then decay</dd></div>
+                <div><dt><code>signalPipe.raw()</code></dt><dd>pass the signal through unchanged</dd></div>
+              </dl>
+            </div>
+            <pre><code>import { createLatido, signalPipe } from "@latido/core"
+
+bindSystemSignals(latido, view, [
+  {
+    system: "weather",
+    source: "weather.temperature",
+    target: "tone",
+    pipe: signalPipe.normalized(-4, 36, 0.08)
+  },
+  {
+    system: "weather",
+    source: "weather.visualBeat",
+    target: "beat",
+    pipe: signalPipe.beat(0.2, 280, 0.1)
+  }
+])</code></pre>
+          </div>
+          <div class="split">
+            <div>
+              <h3>Custom pipes</h3>
+              <p>
+                Helper pipes are just functions. Advanced users can still write their own pipeline
+                when they need nonlinear mapping, custom compression or domain-specific behavior.
+              </p>
+            </div>
+            <pre><code>pipe: source => source
+  .normalize(0, 100)
+  .map(value => value * value)
+  .smooth(0.1)</code></pre>
+          </div>
+        </section>
+
+        <section id="rule-utils" class="section">
+          <div class="section-heading">
+            <p class="eyebrow">Rule utilities</p>
+            <h2>Small building blocks for custom interpretation layers.</h2>
+            <p>
+              <code>@latido/core</code> includes pure helpers for low-level rule and scoring systems.
+              They do not define market, weather or health behavior; your application owns those rules.
+            </p>
+          </div>
+          <div class="split">
+            <div>
+              <dl class="terms compact">
+                <div><dt><code>clamp(value, min, max)</code></dt><dd>restrict a number to a range</dd></div>
+                <div><dt><code>read(values, name)</code></dt><dd>read a finite number or return 0</dd></div>
+                <div><dt><code>readOr(values, name, fallback)</code></dt><dd>read a finite number with fallback</dd></div>
+                <div><dt><code>previousValues(history)</code></dt><dd>read the latest value snapshot from history</dd></div>
+                <div><dt><code>scoreFromFactors(initial, factors, context)</code></dt><dd>combine named scoring factors</dd></div>
+                <div><dt><code>collectRisks(groups, context)</code></dt><dd>collect labels from matching grouped rules</dd></div>
+                <div><dt><code>createBaseHealth(system, score, risks, metrics)</code></dt><dd>create a normalized scored-state descriptor</dd></div>
+              </dl>
+            </div>
+            <pre><code>import {
+  clamp,
+  collectRisks,
+  createBaseHealth,
+  read,
+  scoreFromFactors
+} from "@latido/core"
+
+const factors = [
+  [
+    "windPenalty",
+    ({ wind }) => -clamp((wind - 20) / 35) * 0.26
+  ],
+  [
+    "rainPenalty",
+    ({ rain }) => -clamp(rain / 8) * 0.2
+  ]
+]
+
+const risks = [
+  {
+    name: "weather",
+    rules: [
+      ["high wind", ({ wind }) => wind > 30]
+    ]
+  }
+]
+
+const context = {
+  wind: read(values, "weather.wind"),
+  rain: read(values, "weather.rain")
+}
+const score = scoreFromFactors(0.98, factors, context)
+
+return createBaseHealth(
+  "weather",
+  score,
+  collectRisks(risks, context),
+  context
+)</code></pre>
+          </div>
+        </section>
+
+        <section id="health-interpreter" class="section">
+          <div class="section-heading">
+            <p class="eyebrow">Health interpreter</p>
+            <h2>Temporal state interpretation without domain rules.</h2>
+            <p>
+              <code>createHealthInterpreter</code> handles history, trend detection, hysteresis,
+              recovering and unstable transitions. Your app still owns the base score, risks and reason text.
+            </p>
+          </div>
+          <div class="split">
+            <div>
+              <p>
+                Use it when a latest value is not enough and you need a narrative state over time:
+                stable, stressed, sick, recovering, healthy or custom names.
+              </p>
+              <dl class="terms compact">
+                <div><dt><code>deriveBase(system, values, history)</code></dt><dd>returns score, base state, risks and metrics</dd></div>
+                <div><dt><code>reasonFor(state, base, temporal)</code></dt><dd>keeps domain-specific explanations in your app</dd></div>
+                <div><dt><code>scoreThresholds</code></dt><dd>configures candidate states from 0..1 scores</dd></div>
+                <div><dt><code>minStateDuration</code></dt><dd>prevents small fluctuations from changing state too quickly</dd></div>
+              </dl>
+            </div>
+            <pre><code>import { createHealthInterpreter } from "@latido/core"
+
+const interpretHealth = createHealthInterpreter({
+  deriveBase(system, values, history) {
+    return deriveWeatherBase(values, history)
+  },
+  reasonFor(state, base, temporal) {
+    if (state === "recovering") {
+      return "Recovering after sustained weather stress"
+    }
+
+    if (base.domainRisks.includes("high wind")) {
+      return "High wind and precipitation"
+    }
+
+    return "Stable conditions"
+  }
+})
+
+const health = interpretHealth("weather", values, history)</code></pre>
+          </div>
+        </section>
+
+        <section id="packages" class="section">
+          <div class="section-heading">
+            <p class="eyebrow">Packages</p>
+            <h2>Use the web bundle first. Split packages when you need control.</h2>
+          </div>
+          <div class="cards package-grid" data-package-grid></div>
+        </section>
+
+        <section id="examples" class="section">
+          <div class="section-heading">
+            <p class="eyebrow">Examples</p>
+            <h2>Product-style demos, not test pages.</h2>
+            <p>Each example focuses on behavior first. Numbers are useful, but perception is the interface.</p>
+          </div>
+          <div class="cards example-grid" data-example-grid></div>
+        </section>
+
+        <section id="recipes" class="section">
+          <div class="section-heading">
+            <p class="eyebrow">Recipes</p>
+            <h2>Copy, paste, adapt.</h2>
+          </div>
+          <div class="recipe-list" data-recipe-list></div>
+        </section>
+
+        <section id="api" class="section">
+          <div class="section-heading">
+            <p class="eyebrow">API Reference</p>
+            <h2>The small surface area.</h2>
+          </div>
+          <dl class="signal-name-list" data-signal-name-list></dl>
+          <div class="api-grid" data-api-grid></div>
+        </section>
+
+        <section id="roadmap" class="section">
+          <div class="section-heading">
+            <p class="eyebrow">Roadmap</p>
+            <h2>Adoption first.</h2>
+          </div>
+          <div class="roadmap">
+            <article>
+              <h3>0.5.x</h3>
+              <p>Documentation polish, more recipes, stronger examples, clearer onboarding and stable package guidance.</p>
+            </article>
+            <article>
+              <h3>0.6.x</h3>
+              <p>Production examples for network-driven signals and more real-world interpretation layers.</p>
+            </article>
+            <article>
+              <h3>Later</h3>
+              <p>More adapters, package-level guides, advanced renderer examples and higher-level perceptual components.</p>
+            </article>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

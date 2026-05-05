@@ -1,6 +1,6 @@
 {
   "name": "@latido/events",
-  "version": "0.4.2",
+  "version": "0.5.0",
   "description": "Browser event sources for Latido signals.",
   "license": "MIT",
   "homepage": "https://mploscos.github.io/latido/",
@@ -15,7 +15,8 @@
   "type": "module",
   "main": "./src/index.js",
   "exports": {
-    ".": "./src/index.js"
+    ".": "./src/index.js",
+    "./signals": "./src/signals.js"
   },
   "files": [
     "src",
@@ -35,6 +36,6 @@
     "access": "public"
   },
   "dependencies": {
-    "@latido/core": "0.4.1"
+    "@latido/core": "0.5.0"
   }
 }
